@@ -1,8 +1,7 @@
-package Kwiki::Base;
+package Kwiki::Cookie;
 use strict;
 use warnings;
-use Spoon::Base '-base';
-use Carp;
+use Spoon::Cookie '-base';
 
 1;
 
@@ -10,7 +9,7 @@ __END__
 
 =head1 NAME 
 
-Kwiki::Base - Generic Kwiki Base Class
+Kwiki::Cookie - Kwiki Cookie Base Class
 
 =head1 SYNOPSIS
 

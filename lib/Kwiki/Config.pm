@@ -1,14 +1,35 @@
 package Kwiki::Config;
 use strict;
-use Spoon::Config '-base';
+use warnings;
+use Spoon::Config '-Base';
 
-sub default_config {
-    {
+field main_page => 'HomePage';
+field database_directory => 'database';
+field script_name => undef;
+
+sub init {
+    $self->main_page;
+    $self->script_name($ENV{SCRIPT_NAME});
+}
+
+sub default_classes {
+    (
+        cgi_class => 'Kwiki::CGI',
         config_class => 'Kwiki::Config',
-        registry_class => 'Kwiki::Registry',
-        hub_class => 'Kwiki::Hub',
+        cookie_class => 'Kwiki::Cookie',
         formatter_class => 'Kwiki::Formatter',
-    }
+        hub_class => 'Kwiki::Hub',
+        pages_class => 'Kwiki::Pages',
+        registry_class => 'Kwiki::Registry',
+        template_class => 'Kwiki::Template::TT2',
+    )
+}
+
+sub default_plugin_classes {
+    (
+        'Kwiki::Display', 
+        'Kwiki::Edit', 
+    )
 }
 
 1;

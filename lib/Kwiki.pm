@@ -1,17 +1,16 @@
 package Kwiki;
 use strict;
-use Spoon 0.13 '-base';
-our $VERSION = '0.29_50';
+use warnings;
+use Spoon 0.14 '-Base';
+our $VERSION = '0.29_51';
 
 const config_class => 'Kwiki::Config';
 
-sub process {
-    my $self = shift;
-    $self->run_cgi(@_);
+sub init {
+    $self->hub->load_class('cgi');
 }
 
-sub run_cgi {
-    my $self = shift;
+sub process {
     my $hub = $self->load_hub(@_);
     my $html = $hub->process;
     if (defined $html) {
@@ -21,16 +20,14 @@ sub run_cgi {
         else {
             $hub->load_class('cookie');
             my $header = $hub->cookie->header;
-            $hub->encode($header);
-            $hub->encode($html);
+            $self->utf8_encode($header);
+            $self->utf8_encode($html);
             print $header, $html;
         }
     }
     close STDOUT unless $self->using_debug;
     $hub->post_process;
 }
-
-# TODO Support CGI::Fast and mod_perl
 
 1;
 

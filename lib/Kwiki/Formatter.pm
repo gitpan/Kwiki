@@ -1,15 +1,18 @@
 package Kwiki::Formatter;
 use strict;
+use warnings;
 use Spoon::Formatter '-Base';
 
 const top_class => 'Kwiki::Formatter::Top';
+const class_prefix => 'Kwiki::Formatter::';
+const all_blocks => [qw(hr heading ul ol pre table p)];
 const all_phrases => [qw(
     asis forced titlehyper titlewiki titlemailto hyper wiki mailto 
     ndash mdash strong em u tt del
 )];
 
 sub formatter_classes {             
-    map { "Kwiki::Formatter::$_" } qw(
+    qw(
         Line Heading Paragraph Preformatted Comment
         Ulist Olist Item Table TableRow TableCell
         Strong Emphasize Underline Delete Inline MDash NDash Asis
@@ -19,37 +22,24 @@ sub formatter_classes {
 }
 
 ################################################################################
-# Base Classes
-################################################################################
-package Kwiki::Formatter::Block;
-use base 'Spoon::Formatter::Block';
-const contains_phrases => Kwiki::Formatter->all_phrases;
-
-################################################################################
-package Kwiki::Formatter::Phrase;
-use base 'Spoon::Formatter::Phrase';
-const all_phrases => Kwiki::Formatter->all_phrases;
-
-################################################################################
 # Blocks
 ################################################################################
 package Kwiki::Formatter::Top;
-use base 'Spoon::Formatter::Unit';
+use base 'Spoon::Formatter::Container';
 const formatter_id => 'top';
-const contains_blocks => [qw(hr heading ul ol pre table p)];
 const html_start => qq{<div class="wiki">\n};
 const html_end => "</div>\n";
 
 ################################################################################
 package Kwiki::Formatter::Line;
-use base 'Spoon::Formatter::Block';
+use base 'Spoon::Formatter::Unit';
 const formatter_id => 'hr';
 const pattern_block => qr/^----+\s*\n/m;
 const html => "<hr />\n";
 
 ################################################################################
 package Kwiki::Formatter::Heading;
-use base 'Kwiki::Formatter::Block';
+use base 'Spoon::Formatter::Block';
 const formatter_id => 'heading';
 field 'level'; 
 
@@ -64,7 +54,7 @@ sub match {
 
 ################################################################################
 package Kwiki::Formatter::Paragraph;
-use base 'Kwiki::Formatter::Block';
+use base 'Spoon::Formatter::Block';
 const formatter_id => 'p';
 const pattern_block => qr/((?:^[^\=\#\*\0\|\s].*\n|^[\*\/]+\S.*\n)+)/m;
 const html_start => "<p>\n";
@@ -72,7 +62,7 @@ const html_end => "</p>\n";
 
 ################################################################################
 package Kwiki::Formatter::List;
-use base 'Spoon::Formatter::Block';
+use base 'Spoon::Formatter::Container';
 const contains_blocks => [qw(li)];
 field 'level';
 field 'start_level';
@@ -144,7 +134,7 @@ const bullet => '0+\ +';
 
 ################################################################################
 package Kwiki::Formatter::Item;
-use base 'Kwiki::Formatter::Block';
+use base 'Spoon::Formatter::Block';
 const formatter_id => 'li';
 const html_start => "<li>";
 const html_end => "</li>\n";
@@ -159,7 +149,7 @@ sub match {
 
 ################################################################################
 package Kwiki::Formatter::Preformatted;
-use base 'Spoon::Formatter::Block';
+use base 'Spoon::Formatter::Unit';
 const formatter_id => 'pre';
 const html_start => "<pre>";
 const html_end => "</pre>\n";
@@ -188,7 +178,7 @@ sub text_filter {
 ################################################################################
 # XXX Support colspan
 package Kwiki::Formatter::Table;
-use base 'Spoon::Formatter::Block';
+use base 'Spoon::Formatter::Container';
 const formatter_id => 'table';
 const contains_blocks => [qw(tr)];
 const pattern_block => qr/((^\|.*?\|\n)+)/sm;
@@ -197,7 +187,7 @@ const html_end => "</table>\n";
 
 ################################################################################
 package Kwiki::Formatter::TableRow;
-use base 'Spoon::Formatter::Block';
+use base 'Spoon::Formatter::Container';
 const formatter_id => 'tr';
 const contains_blocks => [qw(td)];
 const pattern_block => qr/(^\|.*?\|\n)/sm;
@@ -206,12 +196,12 @@ const html_end => "</tr>\n";
 
 ################################################################################
 package Kwiki::Formatter::TableCell;
-use base 'Kwiki::Formatter::Block';
+use base 'Spoon::Formatter::Unit';
 const formatter_id => 'td';
 field contains_blocks => [];
 field contains_phrases => [];
-const table_blocks => [qw(pre heading ol1 ul1 hr)];
-const table_phrases => Kwiki::Formatter->all_phrases;
+const table_blocks => [qw(pre heading ol ul hr)];
+sub table_phrases { $self->hub->formatter->all_phrases }
 const html_start => "<td>";
 const html_end => "</td>\n";
 
@@ -235,47 +225,51 @@ sub match {
 # Phrase Classes
 ################################################################################
 package Kwiki::Formatter::Strong;
-use base 'Kwiki::Formatter::Phrase';
+use base 'Spoon::Formatter::Phrase';
+use Kwiki ':char_classes';
 const formatter_id => 'strong';
-const pattern_start => qr/(^|(?<=\s))\*(?=\S)/;
-const pattern_end => qr/\*(?=\W|\z)/;
+const pattern_start => qr/(^|(?<=[^$ALPHANUM]))\*(?=\S)/;
+const pattern_end => qr/\*(?=[^$ALPHANUM]|\z)/;
 const html_start => "<strong>";
 const html_end => "</strong>";
 
 ################################################################################
 package Kwiki::Formatter::Emphasize;
-use base 'Kwiki::Formatter::Phrase';
+use base 'Spoon::Formatter::Phrase';
+use Kwiki ':char_classes';
 const formatter_id => 'em';
-const pattern_start => qr/(^|(?<=\s))\/(?=\S[^\/]*\/(?=\W|\z))/;
-const pattern_end => qr/\/(?=\W|\z)/;
+const pattern_start => qr/(^|(?<=[^$ALPHANUM]))\/(?=\S[^\/]*\/(?=\W|\z))/;
+const pattern_end => qr/\/(?=[^$ALPHANUM]|\z)/;
 const html_start => "<em>";
 const html_end => "</em>";
 
 ################################################################################
 package Kwiki::Formatter::Underline;
-use base 'Kwiki::Formatter::Phrase';
+use base 'Spoon::Formatter::Phrase';
+use Kwiki ':char_classes';
 const formatter_id => 'u';
-const pattern_start => qr/(^|(?<=\s))_(?=\S)/;
-const pattern_end => qr/_(?=\W|\z)/;
+const pattern_start => qr/(^|(?<=[^$ALPHANUM]))_(?=\S)/;
+const pattern_end => qr/_(?=[^$ALPHANUM]|\z)/;
 const html_start => "<u>";
 const html_end => "</u>";
 
 ################################################################################
 package Kwiki::Formatter::Inline;
-use base 'Spoon::Formatter::Token';
+use base 'Spoon::Formatter::Unit';
+use Kwiki ':char_classes';
 const formatter_id => 'tt';
-const contains_phrases => [];
-const pattern_start => qr/(^|(?<=\s))\[\=/;
-const pattern_end => qr/\](?=\W|\z)/;
+const pattern_start => qr/(^|(?<=[^$ALPHANUM]))\[\=/;
+const pattern_end => qr/\](?=[^$ALPHANUM]|\z)/;
 const html_start => "<tt>";
 const html_end => "</tt>";
 
 ################################################################################
 package Kwiki::Formatter::Delete;
-use base 'Kwiki::Formatter::Phrase';
+use base 'Spoon::Formatter::Phrase';
+use Kwiki ':char_classes';
 const formatter_id => 'del';
-const pattern_start => qr/(^|(?<=\s))-(?=[^\-\s])/;
-const pattern_end => qr/-(?=[^a-zA-Z0-9]|\z)/;
+const pattern_start => qr/(^|(?<=[^$ALPHANUM]))-(?=[^\-\s])/;
+const pattern_end => qr/-(?=[^$ALPHANUM]|\z)/;
 const html_start => '<del>';
 const html_end => '</del>';
 
@@ -283,14 +277,14 @@ const html_end => '</del>';
 # Empty Phrases (search & replace)
 ################################################################################
 package Kwiki::Formatter::MDash;
-use base 'Spoon::Formatter::Token';
+use base 'Spoon::Formatter::Unit';
 const formatter_id => 'mdash';
 const pattern_start => qr/\-{3}(?=[^-])/;
 const html => '&#8212;';
 
 ################################################################################
 package Kwiki::Formatter::NDash;
-use base 'Spoon::Formatter::Token';
+use base 'Spoon::Formatter::Unit';
 const formatter_id => 'ndash';
 const pattern_start => qr/\-{2}(?=[^-])/;
 const html => '&#8211;';
@@ -299,20 +293,21 @@ const html => '&#8211;';
 # Much Ado about Linking
 ################################################################################
 package Kwiki::Formatter::ForcedLink;
-use base 'Spoon::Formatter::Token';
+use base 'Spoon::Formatter::Unit';
 use Kwiki ':char_classes';
 const formatter_id => 'forced';
 const pattern_start => qr/\[([$WORD]+)\]/;
 
 sub html {
     $self->matched =~ $self->pattern_start;
+    my $script = $self->hub->config->script_name || 'index.cgi';
     my $text = $self->escape_html( $1 );
-    return qq(<a href="$1">$1</a>);
+    return qq(<a href="$script?$1">$1</a>);
 }
 
 ################################################################################
 package Kwiki::Formatter::HyperLink;
-use base 'Spoon::Formatter::Token';
+use base 'Spoon::Formatter::Unit';
 const formatter_id => 'hyper';
 our $pattern = qr/(?:https?|ftp)\:\/\/\S+/;
 const pattern_start => qr/$pattern|!$pattern/;
@@ -327,7 +322,7 @@ sub html {
 
 ################################################################################
 package Kwiki::Formatter::TitledHyperLink;
-use base 'Spoon::Formatter::Token';
+use base 'Spoon::Formatter::Unit';
 const formatter_id => 'titlehyper';
 const pattern_start => qr/\[([^\]]+)\s+((?:https?|ftp)\:\/\/[^\]]+)\]/;
 
@@ -339,7 +334,7 @@ sub html {
 
 ################################################################################
 package Kwiki::Formatter::WikiLink;
-use base 'Spoon::Formatter::Token';
+use base 'Spoon::Formatter::Unit';
 use Kwiki ':char_classes';
 const formatter_id => 'wiki';
 our $pattern = qr/[$UPPER](?=[$WORD]*[$UPPER])(?=[$WORD]*[$LOWER])[$WORD]+/;
@@ -347,14 +342,15 @@ const pattern_start => qr/$pattern|!$pattern/;
 
 sub html {
     my $text = $self->escape_html($self->matched);
+    my $script = $self->hub->config->script_name || 'index.cgi';
     return $text =~ s/^!//
         ? $text
-        : qq(<a href="$text">$text</a>);
+        : qq(<a href="$script?$text">$text</a>);
 }
 
 ################################################################################
 package Kwiki::Formatter::TitledWikiLink;
-use base 'Spoon::Formatter::Token';
+use base 'Spoon::Formatter::Unit';
 use Kwiki ':char_classes';
 const formatter_id => 'titlewiki';
 const pattern_start => 
@@ -362,13 +358,14 @@ const pattern_start =>
 
 sub html {
     my $text = $self->escape_html($self->matched);
+    my $script = $self->hub->config->script_name || 'index.cgi';
     my ($title, $target) = ($text =~ $self->pattern_start);
-    return qq(<a href="$target">$title</a>);
+    return qq(<a href="$script?$target">$title</a>);
 }
 
 ################################################################################
 package Kwiki::Formatter::MailLink;
-use base 'Spoon::Formatter::Token';
+use base 'Spoon::Formatter::Unit';
 use Kwiki ':char_classes';
 const formatter_id => 'mailto';
 our $pattern = qr/[$ALPHANUM][$WORD\+\-\.]*@[$WORD][$WORD\-\.]+/;
@@ -383,7 +380,7 @@ sub html {
 
 ################################################################################
 package Kwiki::Formatter::TitledMailLink;
-use base 'Spoon::Formatter::Token';
+use base 'Spoon::Formatter::Unit';
 use Kwiki ':char_classes';
 const formatter_id => 'titlemailto';
 const pattern_start => 
@@ -398,7 +395,7 @@ sub html {
 
 ################################################################################
 package Kwiki::Formatter::Asis;
-use base 'Spoon::Formatter::Token';
+use base 'Spoon::Formatter::Unit';
 const formatter_id => 'asis';
 const pattern_start => qr/\{\{/;
 const pattern_end => qr/\}\}/;

@@ -18,7 +18,7 @@ __END__
 visit SomePage or [forcedlink] (not [=code]) if you can, but avoid the negated !NotALink wherever possible, also, [a titled link TitledLink].
 <<<
 <p>
-visit <a href="SomePage">SomePage</a> or <a href="forcedlink">forcedlink</a> (not <tt>code</tt>) if you can, but avoid the negated NotALink wherever possible, also, <a href="TitledLink">a titled link</a>.
+visit <a href="index.cgi?SomePage">SomePage</a> or <a href="index.cgi?forcedlink">forcedlink</a> (not <tt>code</tt>) if you can, but avoid the negated NotALink wherever possible, also, <a href="index.cgi?TitledLink">a titled link</a>.
 </p>
 %%%
 Take a look at http://www.domain.com/dir/the%20page.html?this=isthe&query=string ! But don't check !http://www.negated.com/
@@ -216,7 +216,7 @@ Another Paragraph.
 <ol>
 <li>Foo</li>
 <li>Bar <em>empha</em></li>
-<li><a href="LinkInALink">LinkInALink</a></li>
+<li><a href="index.cgi?LinkInALink">LinkInALink</a></li>
 </ol></ul>
 <pre>bar
 </pre>
@@ -226,7 +226,7 @@ Another Paragraph.
 
 <h3>Conclusion</h3>
 <p>
-We can <em>clearly</em> see that the <em><a href="WaflWay">WaflWay</a></em>
+We can <em>clearly</em> see that the <em><a href="index.cgi?WaflWay">WaflWay</a></em>
 is <em>the <strong>best</strong> way</em> to be.
 </p>
 
