@@ -3,7 +3,8 @@ use strict;
 use warnings;
 use TestChunks;
 use Kwiki;
-my $formatter = Kwiki->new->debug->load_hub->load_class('formatter');
+my $formatter = Kwiki->new->debug->load_hub({css_class => 'Kwiki::CSS'})
+                ->load_class('formatter');
 
 for my $test ((test_chunks(qw(%%% <<<)))[1]) {
     my $wiki_text = $test->chunk('%%%');
@@ -62,7 +63,7 @@ It&#39;s Christmas Time.
 == A Heading
 |
 <<<
-<table>
+<table class="formatter_table">
 <tr>
 <td><h2>A Heading</h2>
 </td>

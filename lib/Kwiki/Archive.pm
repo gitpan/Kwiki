@@ -1,7 +1,9 @@
-package Kwiki::ContentObject;
+package Kwiki::Archive;
 use strict;
 use warnings;
-use Spoon::ContentObject '-Base';
+use Kwiki::Plugin '-base';
+
+const class_id => 'archive';
 
 1;
 
@@ -9,7 +11,7 @@ __DATA__
 
 =head1 NAME 
 
-Kwiki::ContentObject - Kwiki Content Object Base Class
+Kwiki::Archive - Kwiki Page Archive Plugin Base Class
 
 =head1 SYNOPSIS
 

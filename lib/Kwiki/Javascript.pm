@@ -1,15 +1,18 @@
-package Kwiki::ContentObject;
+package Kwiki::Javascript;
 use strict;
 use warnings;
-use Spoon::ContentObject '-Base';
+use Kwiki::CSS '-Base';
+
+const class_id => 'javascript';
+const default_path => [ 'javascript' ];
 
 1;
 
 __DATA__
 
-=head1 NAME 
+=head1 NAME
 
-Kwiki::ContentObject - Kwiki Content Object Base Class
+Kwiki::Javascript - Kwiki Javascript Base Class
 
 =head1 SYNOPSIS
 

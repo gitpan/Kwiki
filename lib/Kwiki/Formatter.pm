@@ -2,17 +2,30 @@ package Kwiki::Formatter;
 use strict;
 use warnings;
 use Spoon::Formatter '-Base';
+use Kwiki::Installer '-base';
 
+const class_id => 'formatter';
+const class_title => 'Kwiki Formatter';
 const top_class => 'Kwiki::Formatter::Top';
 const class_prefix => 'Kwiki::Formatter::';
-const all_blocks => [qw(hr heading ul ol pre table p)];
+const all_blocks => [qw(wafl_block hr heading ul ol pre table p)];
 const all_phrases => [qw(
-    asis forced titlehyper titlewiki titlemailto hyper wiki mailto 
+    asis wafl_phrase forced 
+    titlehyper titlewiki titlemailto 
+    hyper wiki mailto 
     ndash mdash strong em u tt del
 )];
+const css_file => 'formatter.css';
+
+sub init {
+    $self->hub->load_class('pages');
+    $self->hub->load_class('css')->add_file($self->css_file);
+}
 
 sub formatter_classes {             
     qw(
+        Spoon::Formatter::WaflPhrase
+        Spoon::Formatter::WaflBlock
         Line Heading Paragraph Preformatted Comment
         Ulist Olist Item Table TableRow TableCell
         Strong Emphasize Underline Delete Inline MDash NDash Asis
@@ -27,8 +40,6 @@ sub formatter_classes {
 package Kwiki::Formatter::Top;
 use base 'Spoon::Formatter::Container';
 const formatter_id => 'top';
-const html_start => qq{<div class="wiki">\n};
-const html_end => "</div>\n";
 
 ################################################################################
 package Kwiki::Formatter::Line;
@@ -56,7 +67,9 @@ sub match {
 package Kwiki::Formatter::Paragraph;
 use base 'Spoon::Formatter::Block';
 const formatter_id => 'p';
-const pattern_block => qr/((?:^[^\=\#\*\0\|\s].*\n|^[\*\/]+\S.*\n)+)/m;
+const pattern_block => 
+  qr/((?:^(?!(?:[\=\*\0]+ |[\#\|\s]|\.\w+\s*\n|-{4,}\s*\n)).*\S.*\n)+(^\s*\n)*)/m;
+
 const html_start => "<p>\n";
 const html_end => "</p>\n";
 
@@ -151,11 +164,11 @@ sub match {
 package Kwiki::Formatter::Preformatted;
 use base 'Spoon::Formatter::Unit';
 const formatter_id => 'pre';
-const html_start => "<pre>";
+const html_start => qq{<pre class="formatter_pre">};
 const html_end => "</pre>\n";
 
 sub match {
-    return unless $self->text =~ /((?:^ +\S.*?\n|^\n)+)/m;
+    return unless $self->text =~ /((?:^ +\S.*?\n|^ *\n)+)/m;
     my $text = $1;
     $self->set_match;
     return unless $text =~ /\S/;
@@ -182,7 +195,7 @@ use base 'Spoon::Formatter::Container';
 const formatter_id => 'table';
 const contains_blocks => [qw(tr)];
 const pattern_block => qr/((^\|.*?\|\n)+)/sm;
-const html_start => "<table>\n";
+const html_start => qq{<table class="formatter_table">\n};
 const html_end => "</table>\n";
 
 ################################################################################
@@ -200,7 +213,7 @@ use base 'Spoon::Formatter::Unit';
 const formatter_id => 'td';
 field contains_blocks => [];
 field contains_phrases => [];
-const table_blocks => [qw(pre heading ol ul hr)];
+const table_blocks => [qw(wafl_block hr heading ul ol pre p)];
 sub table_phrases { $self->hub->formatter->all_phrases }
 const html_start => "<td>";
 const html_end => "</td>\n";
@@ -300,16 +313,19 @@ const pattern_start => qr/\[([$WORD]+)\]/;
 
 sub html {
     $self->matched =~ $self->pattern_start;
+    my $target = $1;
     my $script = $self->hub->config->script_name || 'index.cgi';
-    my $text = $self->escape_html( $1 );
-    return qq(<a href="$script?$1">$1</a>);
+    my $text = $self->escape_html( $target );
+    my $class = $self->hub->pages->new_page($target)->exists
+      ? '' : ' class="empty"';
+    return qq(<a href="$script?$target"$class>$target</a>);
 }
 
 ################################################################################
 package Kwiki::Formatter::HyperLink;
 use base 'Spoon::Formatter::Unit';
 const formatter_id => 'hyper';
-our $pattern = qr/(?:https?|ftp)\:\/\/\S+/;
+our $pattern = qr/(?:https?|ftp|irc)\:(?:\/\/)?\S+?(?=[),.:;]?\s|$)/;
 const pattern_start => qr/$pattern|!$pattern/;
 
 sub html {
@@ -324,11 +340,19 @@ sub html {
 package Kwiki::Formatter::TitledHyperLink;
 use base 'Spoon::Formatter::Unit';
 const formatter_id => 'titlehyper';
-const pattern_start => qr/\[([^\]]+)\s+((?:https?|ftp)\:\/\/[^\]]+)\]/;
+const pattern_start => 
+  qr/\[(?:\s*([^\]]+)\s+)?((?:https?|ftp)\:(?:\/\/)?[^\]\s]+)(?:\s+([^\]]+)\s*)?\]/;
 
 sub html {
     my $text = $self->escape_html($self->matched);
-    my ($title, $target) = ($text =~ $self->pattern_start);
+    my ($title1, $target, $title2) = ($text =~ $self->pattern_start);
+    $title1 = '' unless defined $title1;
+    $title2 = '' unless defined $title2;
+    $target =~ s/^https?\:(?!\/\/)//;
+    my $title = $title1 . ' ' . $title2;
+    $title =~ s/^\s*(.*?)\s*$/$1/;
+    $title = $target 
+      unless $title =~ /\S/;
     return qq(<a href="$target">$title</a>);
 }
 
@@ -341,11 +365,10 @@ our $pattern = qr/[$UPPER](?=[$WORD]*[$UPPER])(?=[$WORD]*[$LOWER])[$WORD]+/;
 const pattern_start => qr/$pattern|!$pattern/;
 
 sub html {
-    my $text = $self->escape_html($self->matched);
-    my $script = $self->hub->config->script_name || 'index.cgi';
-    return $text =~ s/^!//
-        ? $text
-        : qq(<a href="$script?$text">$text</a>);
+    my $page_id = $self->escape_html($self->matched);
+    return $page_id
+      if $page_id =~ s/^!//;
+    $self->hub->pages->new_page($page_id)->kwiki_link;
 }
 
 ################################################################################
@@ -358,9 +381,8 @@ const pattern_start =>
 
 sub html {
     my $text = $self->escape_html($self->matched);
-    my $script = $self->hub->config->script_name || 'index.cgi';
-    my ($title, $target) = ($text =~ $self->pattern_start);
-    return qq(<a href="$script?$target">$title</a>);
+    my ($label, $page_id) = ($text =~ $self->pattern_start);
+    $self->hub->pages->new_page($page_id)->kwiki_link($label);
 }
 
 ################################################################################
@@ -402,7 +424,8 @@ const pattern_end => qr/\}\}/;
 
 1;
 
-__END__
+package Kwiki::Formatter;
+__DATA__
 
 =head1 NAME 
 
@@ -426,3 +449,29 @@ under the same terms as Perl itself.
 See http://www.perl.com/perl/misc/Artistic.html
 
 =cut
+__css/formatter.css__
+pre.formatter_pre {
+    font-family: monospace;
+    background-color: #eee;
+    padding: 2px;
+    padding-left: 10px;
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+table.formatter_table {
+    border-collapse: collapse;
+    margin-bottom: .2em;
+}
+
+table.formatter_table td {
+    border: 1px;
+    border-style: solid;
+    padding: .2em;
+    vertical-align: top;
+}
+
+span.wafl_error {
+    color: #f00;
+    text-decoration: underline;
+}

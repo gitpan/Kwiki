@@ -2,7 +2,6 @@ package Kwiki::Base;
 use strict;
 use warnings;
 use Spoon::Base '-base';
-use Carp;
 
 1;
 

@@ -1,58 +1,39 @@
 package Kwiki::Preferences;
 use strict;
-# XXX circular dependency on Kwiki::Plugin. Fix when Spiffy::super nests.
-# use warnings;
-use Kwiki::Plugin '-Base';
+use warnings;
+use Kwiki::Base '-Base';
 
 field class_id => 'preferences';
-field 'objects_with_preferences';
+const preference_class => 'Kwiki::Preference';
+field objects_by_class => {};
 
-sub process {
-    $self->get_objects_with_preferences;
-    $self->save if $self->cgi->Button eq 'Save';
-    return $self->render;
-}
-
-sub render {
-    return $self->template_render('preferences_page.html',
-        objects => $self->objects_with_preferences,
-    );
-}
-
-sub save {
-    my %cgi = $self->cgi->all;
-    for my $object (@{$self->objects_with_preferences}) {
-        my $settings = {};
-        my $class_id = $object->class_id;
-        for (sort keys %cgi) {
-            if (/^${class_id}__(.*)/) {
-                my $pref = $1;
-                $pref =~ s/-boolean$//;
-                $settings->{$pref} = $cgi{$_}
-                  unless exists $settings->{$pref};
-            }
-        }
-        if (keys %$settings) {
-            $self->store($class_id, $settings);
-        }
-        $object->load_preference_values;
+sub init {
+    return unless $self->is_in_cgi;
+    $self->hub->load_class('cookie');
+    my $prefs = $self->hub->registry->lookup->preference;
+    for (sort keys %$prefs) {
+        my $array = $prefs->{$_};
+        my $class_id = $array->[0];
+        my $hash = {@{$array}[1..$#{$array}]}
+          or next;
+        my $object = $hash->{object}
+          or next;
+        $object->hub($self->hub);
+        push @{$self->objects_by_class->{$class_id}}, $object;
+        field($_);
+        $self->$_($object);
     }
 }
 
-sub get_objects_with_preferences {
-    my @objects;
-    for my $class_id (@{$self->hub->registry->lookup->has_preferences}) {
-        my $object = $self->hub->load_class($class_id);
-        push @objects, $object;
-        $object->load_preference_values;
-    }
-    $self->objects_with_preferences(\ @objects);
+sub new_preference {
+    $self->preference_class->new(@_);
 }
-    
+
 #------------------------------------------------------------------------------#
 package Kwiki::Preference;
 use Kwiki::Base '-base';
 
+field 'hub';
 field 'id';
 field 'name';
 field 'description';
@@ -62,7 +43,10 @@ field 'choices';
 field 'default';
 field 'handler';
 field 'owner_id';
-field 'value';
+field 'size' => 20;
+field 'edit';
+field 'new_value';
+field 'error';
 
 sub new() {
     my $class = shift;
@@ -82,6 +66,18 @@ sub new() {
     return $self;
 }
 
+sub value {
+    return $self->{value} = shift
+      if @_;
+    return $self->{value} 
+      if defined $self->{value};
+    my $values = $self->hub->cookie->jar->{preferences}
+      or return $self->{value} = $self->default;
+    return $self->{value} = defined $values->{$self->id}
+      ? $values->{$self->id}
+      : $self->default;
+}
+
 sub value_label {
     my $choices = $self->choices
       or return '';
@@ -95,15 +91,16 @@ sub form_element {
 
 sub input {
     my $name = $self->owner_id . '__' . $self->id;
-    my $value = defined $self->value ? $self->value : $self->default;
+    my $value = $self->value;
+    my $size = $self->size;
     return <<END
-<input type="input" name="$name" value="$value" size="25" />
+<input type="input" name="$name" value="$value" size="$size" />
 END
 }
 
 sub boolean {
     my $name = $self->owner_id . '__' . $self->id;
-    my $value = defined $self->value ? $self->value : $self->default;
+    my $value = $self->value;
     my $checked = $value ? 'checked="checked"' : '';
     return <<END
 <input type="checkbox" name="$name" value="1" $checked />
@@ -115,7 +112,7 @@ sub radio {
     my $i = 1;
     my @choices = @{$self->choices};
     my @values = grep {$i++ % 2} @choices;
-    my $value = defined $self->value ? $self->value : $self->default;
+    my $value = $self->value;
 
     join "\n", 
         '<table bgcolor="#e0e0e0"><tr><td align="left">', 
@@ -134,7 +131,7 @@ sub pulldown {
     my $i = 1;
     my @choices = @{$self->choices};
     my @values = grep {$i++ % 2} @choices;
-    my $value = defined $self->value ? $self->value : $self->default;
+    my $value = $self->value;
     CGI::popup_menu(
         -name => $self->owner_id . '__' . $self->id,
         -values => \@values,
@@ -145,3 +142,28 @@ sub pulldown {
 }
 
 1;
+
+__DATA__
+
+=head1 NAME
+
+Kwiki::Preferences - Kwiki Preferences Base Class
+
+=head1 SYNOPSIS
+
+=head1 DESCRIPTION
+
+=head1 AUTHOR
+
+Brian Ingerson <INGY@cpan.org>
+
+=head1 COPYRIGHT
+
+Copyright (c) 2004. Brian Ingerson. All rights reserved.
+
+This program is free software; you can redistribute it and/or modify it
+under the same terms as Perl itself.
+
+See http://www.perl.com/perl/misc/Artistic.html
+
+=cut

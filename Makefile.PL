@@ -8,7 +8,11 @@ version_from('lib/Kwiki.pm');
 
 requires(qw(
     perl 5.6.1
-    Spoon 0.14
+    Spoon 0.15
 ));
+
+install_script('kwiki');
+
+check_nmake();
 
 &WriteAll();

@@ -3,7 +3,8 @@ use strict;
 use warnings;
 use TestChunks;
 use Kwiki;
-my $formatter = Kwiki->new->debug->load_hub->load_class('formatter');
+my $formatter = Kwiki->new->debug->load_hub({css_class => 'Kwiki::CSS'})
+                ->load_class('formatter');
 
 for my $test ((test_chunks(qw(%%% <<<)))) {
     my $wiki_text = $test->chunk('%%%');
@@ -26,7 +27,7 @@ __END__
   one &
   <two>
 <<<
-<pre>one &amp;
+<pre class="formatter_pre">one &amp;
 &lt;two&gt;
 </pre>
 %%%

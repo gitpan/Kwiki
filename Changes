@@ -1,5 +1,5 @@
 ---
-version: 0.29_50
-date:    Fri May  7 00:50:07 PDT 2004
+version: 0.30
+date:    Sun Jun 20 13:48:35 PDT 2004
 changes:
-- Initial pre-release for developer comments.
+- Initial release.

@@ -3,7 +3,12 @@ use strict;
 use warnings;
 use TestChunks;
 use Kwiki;
-my $formatter = Kwiki->new->debug->load_hub->load_class('formatter');
+my $formatter = Kwiki->new->debug->load_hub(
+    {
+        css_class => 'Kwiki::CSS',
+        database_directory => '.',
+    }
+)->load_class('formatter');
 
 for my $test ((test_chunks(qw(%%% <<<)))) {
     my $wiki_text = $test->chunk('%%%');
@@ -18,7 +23,7 @@ __END__
 visit SomePage or [forcedlink] (not [=code]) if you can, but avoid the negated !NotALink wherever possible, also, [a titled link TitledLink].
 <<<
 <p>
-visit <a href="index.cgi?SomePage">SomePage</a> or <a href="index.cgi?forcedlink">forcedlink</a> (not <tt>code</tt>) if you can, but avoid the negated NotALink wherever possible, also, <a href="index.cgi?TitledLink">a titled link</a>.
+visit <a href="index.cgi?SomePage" class="empty">SomePage</a> or <a href="index.cgi?forcedlink" class="empty">forcedlink</a> (not <tt>code</tt>) if you can, but avoid the negated NotALink wherever possible, also, <a href="index.cgi?TitledLink" class="empty">a titled link</a>.
 </p>
 %%%
 Take a look at http://www.domain.com/dir/the%20page.html?this=isthe&query=string ! But don't check !http://www.negated.com/
@@ -65,7 +70,9 @@ Check out my awesome image <img src="http://www.kwiki.org/awesome-image.jpg" /> 
 ======= Level Seven Header
 <h2>Trailing Equals</h2>
 <h2>Trailing Equals Without Space=</h2>
+<p>
 ==No Initial Space
+</p>
 %%%
 This is *strong*
 <<<
@@ -109,8 +116,8 @@ Paragraph two.
 <<<
 <p>
 Paragraph one.
-</p>
 
+</p>
 <p>
 Paragraph two.
 </p>
@@ -139,17 +146,17 @@ e ---
 <<<
 <p>
 a &#8211; b &#8212; <del>blat</del> c
-</p>
 
+</p>
 <hr />
 <p>
 &#8211; d
-</p>
 
+</p>
 <p>
 e &#8212;
-</p>
 
+</p>
 <p>
 <strong>I paused&#8212; <del>then deleted</del> oops</strong>
 </p>
@@ -160,8 +167,8 @@ This is not
 <<<
 <p>
 This is <strong>strong</strong>
-</p>
 
+</p>
 <p>
 This is not
 </p>
@@ -201,24 +208,24 @@ is /the *best* way/ to be.
 xxx /*-[= pedantic ]-*/ _xxx_
 <<<
 <h2>Simple Header</h2>
-<pre>sub foo {
+<pre class="formatter_pre">sub foo {
     ...
 }
 </pre>
 <hr />
 <p>
 Another Paragraph.
-</p>
 
+</p>
 <ul>
 <li>One</li>
 
 <ol>
 <li>Foo</li>
 <li>Bar <em>empha</em></li>
-<li><a href="index.cgi?LinkInALink">LinkInALink</a></li>
+<li><a href="index.cgi?LinkInALink" class="empty">LinkInALink</a></li>
 </ol></ul>
-<pre>bar
+<pre class="formatter_pre">bar
 </pre>
 <ul>
 <li>Two <strong>strong</strong></li>
@@ -226,10 +233,10 @@ Another Paragraph.
 
 <h3>Conclusion</h3>
 <p>
-We can <em>clearly</em> see that the <em><a href="index.cgi?WaflWay">WaflWay</a></em>
+We can <em>clearly</em> see that the <em><a href="index.cgi?WaflWay" class="empty">WaflWay</a></em>
 is <em>the <strong>best</strong> way</em> to be.
-</p>
 
+</p>
 <p>
 xxx <em><strong><del><tt> pedantic </tt></del></strong></em> <u>xxx</u>
 </p>
@@ -242,10 +249,10 @@ Here's the second paragraph.
 <<<
 <p>
 Okay, so there&#39;s this bug. I&#39;ll talk about a path to /etc/modules.autoload and then write some <tt>inline stuff</tt>.
-</p>
 
+</p>
 <p>
 Here&#39;s the second paragraph.
-</p>
 
+</p>
 <h3>/usr/local</h3>
