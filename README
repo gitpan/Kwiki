@@ -2,9 +2,7 @@ NAME
     Kwiki - The Kwiki Wiki Building Framework
 
 SYNOPSIS
-        > mkdir cgi-bin/my-kwiki
-        > cd cgi-bin/my-kwiki
-        > kwiki -new
+        > kwiki -new cgi-bin/my-kwiki
 
         Kwiki software installed! Point your browser at this location.
 
@@ -66,7 +64,7 @@ CREDITS
 
      ---
 
-    And finally, props to all the folks on http://www.kwiki.org and
+    Finally, big props to all the folks on http://www.kwiki.org and
     irc://irc.freenode.net/#kwiki. Thanks for all the support!
 
 AUTHOR

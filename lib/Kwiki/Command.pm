@@ -10,13 +10,17 @@ sub init {
 sub boolean_arguments { qw(-install -new -update -compress) }
 sub process {
     my ($args, @values) = $self->parse_arguments(@_);
-    return $self->new_kwiki if $args->{-new} or $args->{-install};
-    return $self->update_kwiki if $args->{-update};
-    return $self->compress_kwiki(@values) if $args->{-compress};
+    return $self->new_kwiki(@values)
+      if $args->{-new} or $args->{-install};
+    return $self->update_kwiki(@values)
+      if $args->{-update};
+    return $self->compress_kwiki(@values)
+      if $args->{-compress};
     return $self->usage;
 }
 
 sub new_kwiki {
+    chdir io->dir(shift || '.')->assert->open . '';
     my @files = io('.')->all;
     die "Can't make new kwiki in a non-empty directory\n"
       if @files;

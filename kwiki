@@ -16,9 +16,7 @@ kwiki - The Kwiki Command Line Tool
 
 =head1 USAGE
 
-    > mkdir cgi-bin/my-kwiki
-    > cd cgi-bin/my-kwiki
-    > kwiki -new
+    > kwiki -new cgi-bin/my-kwiki
 
     Kwiki software installed! Point your browser at this location.
 
@@ -33,6 +31,10 @@ To install a new Kwiki, create an empty directory and type:
 
     kwiki -new
 
+or specify the directory on the command:
+
+    kwiki -new path/for/installation
+
 To add plugins to a configuration, install the plugin modules from CPAN, add
 them to the C<plugins> configuration file, and type:
 
@@ -44,7 +46,7 @@ See L<Kwiki> for more information.
 
 =head1 AUTHOR
 
-Brian Ingerson <INGY@cpan.org>
+Brian Ingerson <ingy@cpan.org>
 
 =head1 COPYRIGHT
 

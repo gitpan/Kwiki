@@ -1,4 +1,10 @@
 ---
+version: 0.31
+date:    Tue Jun 22 09:39:29 PDT 2004
+changes:
+- Installer was clobbering some files
+- Allow installer to take a directory argument
+---
 version: 0.30
 date:    Sun Jun 20 13:48:35 PDT 2004
 changes:

@@ -1,8 +1,8 @@
 package Kwiki;
 use strict;
 use warnings;
-use Spoon 0.15 '-Base';
-our $VERSION = '0.30';
+use Spoon 0.16 '-Base';
+our $VERSION = '0.31';
 
 const config_class => 'Kwiki::Config';
 
@@ -34,9 +34,7 @@ Kwiki - The Kwiki Wiki Building Framework
 
 =head1 SYNOPSIS
 
-    > mkdir cgi-bin/my-kwiki
-    > cd cgi-bin/my-kwiki
-    > kwiki -new
+    > kwiki -new cgi-bin/my-kwiki
 
     Kwiki software installed! Point your browser at this location.
 
@@ -102,7 +100,7 @@ plugins to come from him! Thanks Ian.
 
  ---
 
-And finally, props to all the folks on http://www.kwiki.org and
+Finally, big props to all the folks on http://www.kwiki.org and
 irc://irc.freenode.net/#kwiki. Thanks for all the support!
 
 =head1 AUTHOR

@@ -241,7 +241,7 @@ under the same terms as Perl itself.
 See http://www.perl.com/perl/misc/Artistic.html
 
 =cut
-__database/HomePage__
+__!database/HomePage__
 === Welcome to Your New Kwiki!
 
 You have successfully installed a new Kwiki. Now you should /edit this page/ and start adding NewPages. For help on Kwiki syntax and other Kwiki issues, visit http://www.kwiki.org/?KwikiHelpIndex.
