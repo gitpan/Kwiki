@@ -1,0 +1,24 @@
+Changes
+classes.yaml
+inc/Module/Install.pm
+inc/Module/Install/Base.pm
+inc/Module/Install/Can.pm
+inc/Module/Install/Fetch.pm
+inc/Module/Install/Makefile.pm
+inc/Module/Install/Metadata.pm
+inc/Module/Install/Win32.pm
+inc/Module/Install/WriteAll.pm
+lib/Kwiki.pm
+lib/Kwiki/Base.pm
+lib/Kwiki/Config.pm
+lib/Kwiki/Formatter.pm
+lib/Kwiki/Hub.pm
+lib/Kwiki/Registry.pm
+Makefile.PL
+MANIFEST			This list of files
+META.yml
+README
+t/formatter1.t
+t/formatter2.t
+t/formatter3.t
+t/TestChunks.pm
