@@ -7,7 +7,7 @@ const show_revisions => 1;
 
 sub register {
     my $registry = shift;
-    $registry->add(hook => 'page:store', post => 'commit');
+    $registry->add(hook => 'page:store', post => 'commit_hook');
 }
 
 sub init {
