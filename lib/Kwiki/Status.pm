@@ -1,29 +1,29 @@
-package Kwiki::Widgets;
+package Kwiki::Status;
 use strict;
 use warnings;
 use Kwiki::Plugin '-Base';
 use mixin 'Kwiki::Installer';
 
-const class_id => 'widgets';
-const class_title => 'Kwiki Widgets';
-const widgets_template => 'widgets_pane.html';
+const class_id => 'status';
+const class_title => 'Kwiki Status';
+const status_template => 'status_pane.html';
 
 sub register {
     my $registry = shift;
-    $registry->add(preload => 'widgets');
+    $registry->add(preload => 'status');
 }
 
 sub html {
     my $lookup = $self->hub->registry->lookup;
-    my $widgets = $lookup->{widget}
+    my $status = $lookup->{status}
       or return '';
     my %toolmap;
-    for (keys %$widgets) {
-        my $array = $widgets->{$_};
+    for (keys %$status) {
+        my $array = $status->{$_};
         push @{$toolmap{$array->[0]}}, {@{$array}[1..$#{$array}]};
     }
     my %classmap = reverse %{$lookup->{classes}};
-    my $widgets_content = join "<br />\n", grep {
+    my $status_content = join "<br />\n", grep {
         defined $_ and do {
             my $button = $_;
             $button =~ s/<!--.*?-->//gs;
@@ -40,27 +40,17 @@ sub html {
     } map {
         $classmap{$_}
     } @{$self->hub->config->plugin_classes};
-    $self->template->process($self->widgets_template,
-        widgets_content => $widgets_content,
+    $self->template->process($self->status_template,
+        status_content => $status_content,
     );
 }
 
 sub show {
     my $tool = shift;
     my $action = $self->hub->action;
-    my $show = $tool->{show_for};
+    my $show = $tool->{show_if_preference};
     if (defined $show) {
-        for (ref($show) ? (@$show) : ($show)) {
-            return 1 if $_ eq $action;
-        }
-        return 0;
-    }
-    my $omit = $tool->{omit_for};
-    if (defined $omit) {
-        for (ref($omit) ? (@$omit) : ($omit)) {
-            return 0 if $_ eq $action;
-        }
-        return 1;
+        return $self->preferences->$show->value;
     }
     return 1;
 }
@@ -71,7 +61,7 @@ __DATA__
 
 =head1 NAME
 
-Kwiki::Widgets - Kwiki Widgets Base Class
+Kwiki::Status - Kwiki Status Base Class
 
 =head1 SYNOPSIS
 
@@ -91,9 +81,9 @@ under the same terms as Perl itself.
 See http://www.perl.com/perl/misc/Artistic.html
 
 =cut
-__template/tt2/widgets_pane.html__
-<!-- BEGIN widgets_pane.html -->
-<div class="widgets">
-[% widgets_content %]
+__template/tt2/status_pane.html__
+<!-- BEGIN status_pane.html -->
+<div class="status">
+[% status_content %]
 </div>
-<!-- END widgets_pane.html -->
+<!-- END status_pane.html -->

@@ -1,6 +1,7 @@
 package Kwiki::Installer;
 use strict;
 use warnings;
+# use base 'Spoon::Installer';
 use Spoon::Installer '-base';
 
 1;

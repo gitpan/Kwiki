@@ -1,12 +1,12 @@
 name: Kwiki
-version: 0.31
+version: 0.32
 abstract: Kwiki Wiki Framework
 author: Brian Ingerson <ingy@cpan.org>
 license: perl
 distribution_type: module
 requires:
   perl: 5.6.1
-  Spoon: 0.16
+  Spoon: 0.17
   Storable: 0
 no_index:
   directory:

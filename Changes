@@ -1,4 +1,11 @@
 ---
+version: 0.32
+date:    Tue Jul 20 03:01:51 PDT 2004
+changes:
+- Make kwiki -update take a directory parameter
+- kwiki -update checks that wiki directory is valid
+- Added status pane
+---
 version: 0.31
 date:    Tue Jun 22 09:39:29 PDT 2004
 changes:

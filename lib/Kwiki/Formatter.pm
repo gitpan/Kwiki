@@ -2,7 +2,7 @@ package Kwiki::Formatter;
 use strict;
 use warnings;
 use Spoon::Formatter '-Base';
-use Kwiki::Installer '-base';
+use mixin 'Kwiki::Installer';
 
 const class_id => 'formatter';
 const class_title => 'Kwiki Formatter';

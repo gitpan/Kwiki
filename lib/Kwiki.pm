@@ -1,8 +1,8 @@
 package Kwiki;
 use strict;
 use warnings;
-use Spoon 0.16 '-Base';
-our $VERSION = '0.31';
+use Spoon 0.17 '-Base';
+our $VERSION = '0.32';
 
 const config_class => 'Kwiki::Config';
 
@@ -38,6 +38,12 @@ Kwiki - The Kwiki Wiki Building Framework
 
     Kwiki software installed! Point your browser at this location.
 
+=head1 NOTE
+
+If you are impatient (don't worry, that's a good thing!) read
+L<Kwiki::Command> to get the details on how to install and configure a
+new Kwiki wiki in record time.
+
 =head1 DESCRIPTION
 
 A Wiki is a website that allows its users to add pages, and edit any
@@ -68,9 +74,13 @@ There is currently no automated way to upgrade a CGI::Kwiki installation
 to Kwiki. It's actually quite easy to do by hand. Instructions on how to
 do it are here: http://www.kwiki.org/?KwikiMigrationByHand
 
+=head1 SEE ALSO
+
+Kwiki::Command
+
 =head1 RELEASE NOTES
 
-This is the first release of the Kwiki distribution. I know that the
+This is an early release of the Kwiki distribution. I know that the
 documentation is lacking. Please refer to http://www.kwiki.org for the
 latest information. Proper documentation will follow soon.
 

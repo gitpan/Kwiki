@@ -2,12 +2,11 @@ package Kwiki::Edit;
 use strict;
 use warnings;
 use Kwiki::Plugin '-Base';
-use Kwiki::Installer '-base';
+use mixin 'Kwiki::Installer';
 
 const class_id => 'edit';
 const class_title => 'Page Edit';
 const cgi_class => 'Kwiki::Edit::CGI';
-const screen_template => 'edit_screen.html';
 const config_file => 'edit.yaml';
 
 sub register {
@@ -31,6 +30,7 @@ sub edit {
       : $page->content;
     $content ||= $self->config->default_content;
     $self->render_screen(
+        screen_title => $page->id,
         page_content => $content,
         page_time => $page->modified_time,
     );
@@ -56,13 +56,15 @@ sub preview {
 }
 
 sub edit_contention {
-    return $self->template->process('edit_contention.html');
+    return $self->render_screen(
+        content_pane => 'edit_contention.html',
+    );
 }
 
 package Kwiki::Edit::CGI;
 use base 'Kwiki::CGI';
 
-cgi 'page_content' => qw(-newlines);
+cgi 'page_content' => qw(-utf8 -newlines);
 cgi 'revision_id';
 cgi 'page_time';
 
@@ -111,7 +113,6 @@ Edit
 <!-- END edit_book_button_icon.html -->
 __template/tt2/edit_contention.html__
 <!-- BEGIN edit_contention.html -->
-[% INCLUDE kwiki_layout_begin.html -%]
 <div class="error">
 <p>
 While you were editing this page somebody else saved changes to
@@ -124,11 +125,9 @@ your browser's back button to return to the Edit screen and make more
 changes. Always use the Kwiki Edit button to get to the Edit screen.
 </p>
 </div>
-[% INCLUDE kwiki_layout_end.html -%]
 <!-- END edit_contention.html -->
-__template/tt2/edit_screen.html__
-<!-- BEGIN edit_screen.html -->
-[% INCLUDE kwiki_layout_begin.html %]
+__template/tt2/edit_content.html__
+<!-- BEGIN edit_content.html -->
 <script language="JavaScript" type="text/JavaScript"><!--
 function clear_default_content(content_box) {
     if (content_box.value == '[% default_content %]') {
@@ -152,5 +151,4 @@ function clear_default_content(content_box) {
 [%- page_content -%]
 </textarea>
 </form>
-[% INCLUDE kwiki_layout_end.html %]
-<!-- END edit_screen.html -->
+<!-- END edit_content.html -->

@@ -27,7 +27,7 @@ __END__
   one &
   <two>
 <<<
-<pre class="formatter_pre">one &amp;
+<pre class="formatter_pre">one &#38;
 &lt;two&gt;
 </pre>
 %%%

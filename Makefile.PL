@@ -8,7 +8,7 @@ version_from('lib/Kwiki.pm');
 
 requires(qw(
     perl 5.6.1
-    Spoon 0.16
+    Spoon 0.17
     Storable 0
 ));
 

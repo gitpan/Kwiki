@@ -2,6 +2,7 @@ package Kwiki::Theme::Basic;
 use strict;
 use warnings;
 use Kwiki::Theme '-Base';
+use mixin 'Kwiki::Installer';
 
 const theme_id => 'basic';
 const class_title => 'Basic Theme';
@@ -32,11 +33,69 @@ under the same terms as Perl itself.
 See http://www.perl.com/perl/misc/Artistic.html
 
 =cut
+__theme/basic/template/tt2/kwiki_screen.html__
+[%- INCLUDE kwiki_doctype.html %]
+<!-- BEGIN kwiki_screen.html -->
+[% INCLUDE kwiki_begin.html %]
+<table id="group"><tr>
+<td id="group_1">
+<div class="navigation">
+<div id="title_pane">
+<h1>
+[% screen_title || self.class_title %]
+</h1>
+</div>
+
+<div id="toolbar_pane">
+[% hub.toolbar.html %]
+[% IF hub.have_plugin('user_name') %]
+[% INCLUDE user_name_title.html %]
+[% END %]
+</div>
+
+<div id="status_pane">
+[% hub.status.html %]
+</div>
+</div><!-- navigation -->
+
+<hr />
+<div id="content_pane">
+[% INCLUDE $content_pane %]
+</div>
+<hr />
+
+<div class="navigation">
+<div id="toolbar_pane_2">
+[% hub.toolbar.html %]
+</div>
+</div><!-- navigation -->
+</td>
+
+<td id="group_2">
+<div class="navigation">
+<div id="logo_pane">
+<img src="[% logo_image %]" align="center" alt="Kwiki Logo" title="[% site_title %]" />
+</div>
+<br/>
+
+<div id="widgets_pane">
+[% hub.widgets.html %]
+</div>
+</div><!-- navigation -->
+
+</td>
+</tr></table>
+[% INCLUDE kwiki_end.html %]
+<!-- END kwiki_screen.html -->
 __theme/basic/css/kwiki.css__
 #logo_pane {
     text-align: center;
 }
-
+    
+#logo_pane img {
+    width: 90px;
+}
+    
 #group {
     width: 100%;
 }
@@ -63,70 +122,7 @@ h1, h2, h3, h4, h5, h6 {
 .error, .empty {
     color: #f00;
 }
-__theme/basic/css/toolbar.css__
-div.toolbar a:visited {
+
+div.navigation a:visited {
     color: #00f;
 }
-__theme/basic/template/tt2/html_begin.html__
-<!-- BEGIN html_begin.html -->
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-  <title>[% site_title %]</title>
-[% FOR css_file = hub.css.files -%]
-  <link rel="stylesheet" type="text/css" href="[% css_file %]" />
-[% END -%]
-[% FOR javascript_file = hub.javascript.files -%]
-  <script type="text/javascript" src="[% javascript_file %]"></script>
-[% END -%]
-  <link rel="shortcut icon" href="" />
-  <link rel="start" href="index.cgi" title="Home" />
-</head>
-<body>
-<!-- END html_begin.html -->
-__theme/basic/template/tt2/html_end.html__
-<!-- BEGIN html_end.html -->
-</body>
-</html>
-<!-- END html_end.html -->
-__theme/basic/template/tt2/kwiki_layout_begin.html__
-<!-- BEGIN kwiki_layout_begin.html -->
-[% INCLUDE html_begin.html %]
-<table id="group"><tr>
-<td id="group_1">
-<div id="title_pane">
-<h1>[% screen_title || page_id %]</h1>
-</div>
-
-<div id="toolbar_pane">
-[% hub.toolbar.html %]
-[% IF hub.have_plugin('user_name') %]
-[% INCLUDE user_name_title.html %]
-[% END %]
-</div>
-
-<div id="content_pane">
-<hr />
-<!-- END kwiki_layout_begin.html -->
-__theme/basic/template/tt2/kwiki_layout_end.html__
-<!-- BEGIN kwiki_layout_end.html -->
-<hr />
-</div>
-<div id="toolbar_pane_2">
-[% hub.toolbar.html %]
-</div>
-</td>
-
-<td id="group_2">
-<div id="logo_pane">
-<img src="[% logo_image %]" align="center" alt="Kwiki Logo" title="[% site_title %]" />
-</div>
-<br/>
-<div id="widgets_pane">
-[% hub.widgets.html %]
-</div>
-</td>
-</tr></table>
-[% INCLUDE html_end.html %]
-<!-- END kwiki_layout_end.html -->

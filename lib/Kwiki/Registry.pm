@@ -1,9 +1,16 @@
 package Kwiki::Registry;
 use strict;
 use warnings;
-use Spoon::Registry '-base';
+use Spoon::Registry '-Base';
 
 const registry_directory => './plugin';
+
+sub add {
+    my ($key, $value) = @_;
+    return super
+      unless $key eq 'preference' and @_ == 2;
+    super($key, $value->id, object => $value);
+}
 
 1;
 

@@ -2,7 +2,7 @@ package Kwiki::Htaccess;
 use strict;
 use warnings;
 use Kwiki::Plugin '-Base';
-use Kwiki::Installer '-base';
+use mixin 'Kwiki::Installer';
 
 const class_id => 'htaccess';
 const class_title => 'Apache htaccess Files';

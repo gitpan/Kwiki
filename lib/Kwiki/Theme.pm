@@ -2,7 +2,6 @@ package Kwiki::Theme;
 use strict;
 use warnings;
 use Kwiki::Plugin '-Base';
-use Kwiki::Installer '-Base';
 
 const class_id => 'theme';
 
@@ -23,6 +22,7 @@ sub init {
     $self->hub->javascript->add_path("theme/$theme_id/javascript")
       if -d "theme/$theme_id/javascript";
     $self->hub->css->add_file('kwiki.css');
+    $self->hub->load_class('cookie');
 }
 
 1;

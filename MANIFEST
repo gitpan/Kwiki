@@ -31,6 +31,7 @@ lib/Kwiki/Pages.pm
 lib/Kwiki/Plugin.pm
 lib/Kwiki/Preferences.pm
 lib/Kwiki/Registry.pm
+lib/Kwiki/Status.pm
 lib/Kwiki/Template.pm
 lib/Kwiki/Template/TT2.pm
 lib/Kwiki/Theme.pm

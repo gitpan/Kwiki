@@ -7,9 +7,9 @@ field class_id => 'preferences';
 const preference_class => 'Kwiki::Preference';
 field objects_by_class => {};
 
-sub init {
+sub load {
     return unless $self->is_in_cgi;
-    $self->hub->load_class('cookie');
+    my $values = shift;
     my $prefs = $self->hub->registry->lookup->preference;
     for (sort keys %$prefs) {
         my $array = $prefs->{$_};
@@ -18,11 +18,20 @@ sub init {
           or next;
         my $object = $hash->{object}
           or next;
+        $object->value($values->{$_});
         $object->hub($self->hub);
         push @{$self->objects_by_class->{$class_id}}, $object;
         field($_);
         $self->$_($object);
     }
+}
+
+sub new_preferences {
+    my $values = shift;
+    my $new = bless {}, ref $self;
+    $new->hub($self->hub);
+    $new->load($values);
+    return $new;
 }
 
 sub new_preference {
@@ -69,12 +78,8 @@ sub new() {
 sub value {
     return $self->{value} = shift
       if @_;
-    return $self->{value} 
-      if defined $self->{value};
-    my $values = $self->hub->cookie->jar->{preferences}
-      or return $self->{value} = $self->default;
-    return $self->{value} = defined $values->{$self->id}
-      ? $values->{$self->id}
+    return defined $self->{value} 
+      ? $self->{value}
       : $self->default;
 }
 

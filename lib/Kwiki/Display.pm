@@ -2,11 +2,10 @@ package Kwiki::Display;
 use strict;
 use warnings;
 use Kwiki::Plugin '-Base';
-use Kwiki::Installer '-base';
+use mixin 'Kwiki::Installer';
 
 const class_id => 'display';
 const class_title => 'Page Display';
-const screen_template => 'display_screen.html';
 
 sub register {
     my $registry = shift;
@@ -14,9 +13,7 @@ sub register {
     $registry->add(toolbar => 'home_button', 
                    template => 'home_button.html',
                   );
-    $registry->add(preference => 'display_changed_by',
-                   object => $self->display_changed_by
-                  );
+    $registry->add(preference => $self->display_changed_by);
 }
 
 sub display_changed_by {
@@ -28,10 +25,18 @@ sub display_changed_by {
 
 sub display {
     my $page = $self->pages->current;
-    return $self->redirect('action=edit&page_id=' . $page->id)
+    my $page_id = $page->id;
+    return $self->redirect("action=edit&page_id=$page_id")
       unless $page->exists;
     $self->page($page);
-    $self->render_screen(page_html => $page->to_html);
+    my $script = $self->config->script_name;
+    my $screen_title = $self->hub->have_plugin('search')
+    ? "<a href=\"$script?action=search&search_term=$page_id\">$page_id</a>"
+    : $page_id;
+    $self->render_screen(
+        screen_title => $screen_title,
+        page_html => $page->to_html,
+    );
 }
 
 1;
@@ -70,21 +75,16 @@ __template/tt2/home_button_icon.html__
 <!-- BEGIN home_button_icon.html -->
 Home
 <!-- END home_button_icon.html -->
-__template/tt2/display_screen.html__
-<!-- BEGIN display_screen.html -->
-[% IF hub.have_plugin('search') -%]
-[% screen_title = "<a href=\"$script_name?action=search&search_term=$page_id\">$page_id</a>" -%]
-[% END -%]
-[% INCLUDE kwiki_layout_begin.html -%]
+__template/tt2/display_content.html__
+<!-- BEGIN display_content.html -->
 <div class="wiki">
 [% page_html -%]
 </div>
 [% INCLUDE display_changed_by.html %]
-[% INCLUDE kwiki_layout_end.html -%]
-<!-- END display_screen.html -->
+<!-- END display_content.html -->
 __template/tt2/display_changed_by.html__
 <!-- BEGIN display_changed_by.html -->
-[% IF hub.preferences.display_changed_by.value %]
+[% IF self.preferences.display_changed_by.value %]
 [% page = hub.pages.current %]
 <div style="background-color: #eee">
 <em>

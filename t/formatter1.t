@@ -23,13 +23,13 @@ __END__
 visit SomePage or [forcedlink] (not [=code]) if you can, but avoid the negated !NotALink wherever possible, also, [a titled link TitledLink].
 <<<
 <p>
-visit <a href="index.cgi?SomePage" class="empty">SomePage</a> or <a href="index.cgi?forcedlink" class="empty">forcedlink</a> (not <tt>code</tt>) if you can, but avoid the negated NotALink wherever possible, also, <a href="index.cgi?TitledLink" class="empty">a titled link</a>.
+visit <a href="index.cgi?SomePage" class="empty">SomePage</a> or <a href="index.cgi?forcedlink" class="empty">forcedlink</a> &#40;not <tt>code</tt>&#41; if you can, but avoid the negated NotALink wherever possible, also, <a href="index.cgi?TitledLink" class="empty">a titled link</a>.
 </p>
 %%%
 Take a look at http://www.domain.com/dir/the%20page.html?this=isthe&query=string ! But don't check !http://www.negated.com/
 <<<
 <p>
-Take a look at <a href="http://www.domain.com/dir/the%20page.html?this=isthe&amp;query=string">http://www.domain.com/dir/the%20page.html?this=isthe&amp;query=string</a> ! But don&#39;t check http://www.negated.com/
+Take a look at <a href="http://www.domain.com/dir/the%20page.html?this=isthe&#38;query=string">http://www.domain.com/dir/the%20page.html?this=isthe&#38;query=string</a> ! But don&#39;t check http://www.negated.com/
 </p>
 %%%
 This is a [named link http://www.kwiki.org/] okay?
@@ -176,7 +176,7 @@ This is not
 with *two* lines <&amp;> stuff.
 <<<
 <p>
-with <strong>two</strong> lines &lt;&amp;amp;&gt; stuff.
+with <strong>two</strong> lines &lt;&#38;amp;&gt; stuff.
 </p>
 %%%
 This is a *paragraph* of /text/,
@@ -184,7 +184,7 @@ with two lines <&amp;> stuff.
 <<<
 <p>
 This is a <strong>paragraph</strong> of <em>text</em>,
-with two lines &lt;&amp;amp;&gt; stuff.
+with two lines &lt;&#38;amp;&gt; stuff.
 </p>
 %%%
 == Simple Header

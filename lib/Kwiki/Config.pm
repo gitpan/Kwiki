@@ -2,7 +2,7 @@ package Kwiki::Config;
 use strict;
 use warnings;
 use Spoon::Config '-Base';
-use Kwiki::Installer '-base';
+use base 'Spoon::Installer';
 
 const class_id => 'config';
 const class_title => 'Kwiki Configuration';
@@ -10,9 +10,11 @@ const config_file => 'config.yaml';
 field script_name => undef;
 const default_path => [ 'config' ];
 field path => [];
+field plugins_file => '';
 
 sub init {
-    $self->script_name($ENV{SCRIPT_NAME});
+    $self->script_name($ENV{SCRIPT_NAME})
+      unless defined $self->script_name;
     $self->add_path(@{$self->default_path});
     $self->add_file($self->config_file);
 }
@@ -21,8 +23,10 @@ sub paired_arguments { qw(-plugins) }
 sub new {
     my ($args, @configs) = $self->parse_arguments(@_);
     $self = $self->SUPER::new(@configs);
-    $self->add_plugins_file($args->{-plugins})
-      if $args->{-plugins};
+    if (my $plugins_file = $args->{-plugins}) {
+        $self->add_plugins_file($plugins_file);
+        $self->plugins_file($plugins_file);
+    }
     return $self;
 }
 
@@ -120,7 +124,6 @@ __config/config.yaml__
 site_title: Kwiki
 main_page: HomePage
 database_directory: database
-character_encoding: UTF-8
 __!config.yaml__
 logo_image: palm90.png
 __!plugins__
@@ -129,4 +132,5 @@ Kwiki::Edit
 Kwiki::Htaccess
 Kwiki::Theme::Basic
 Kwiki::Toolbar
+Kwiki::Status
 Kwiki::Widgets

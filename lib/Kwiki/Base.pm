@@ -1,7 +1,15 @@
 package Kwiki::Base;
 use strict;
 use warnings;
-use Spoon::Base '-base';
+use Spoon::Base '-Base';
+
+field 'id';
+
+sub new {
+    $self = super(shift);
+    $self->id(shift) if @_;;
+    return $self;
+}
 
 1;
 

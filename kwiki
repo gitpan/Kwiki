@@ -24,25 +24,12 @@ kwiki - The Kwiki Command Line Tool
 
 Kwiki is a simple extendable wiki framework, written in Perl.
 
-The C<kwiki> command line tool is used to install and maintain a Kwiki
-installation.
+See L<Kwiki::Command> for more information on using the command line tool.
 
-To install a new Kwiki, create an empty directory and type:
+=head1 NOTE
 
-    kwiki -new
-
-or specify the directory on the command:
-
-    kwiki -new path/for/installation
-
-To add plugins to a configuration, install the plugin modules from CPAN, add
-them to the C<plugins> configuration file, and type:
-
-    kwiki -update
-
-=head1 SEE ALSO
-
-See L<Kwiki> for more information.
+If you are on Mac OS X, use the command C<perldoc Kwiki.pm> to get the
+Kwiki B<module> documentation.
 
 =head1 AUTHOR
 

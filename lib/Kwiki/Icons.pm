@@ -2,7 +2,7 @@ package Kwiki::Icons;
 use strict;
 use warnings;
 use Kwiki::Plugin '-Base';
-use Kwiki::Installer '-base';
+use mixin 'Kwiki::Installer';
 
 const class_id => 'icons';
 const css_file => 'icons.css';
@@ -14,9 +14,7 @@ sub class_title {
 sub register {
     my $registry = shift;
     $registry->add('preload', 'icons');
-    $registry->add(preference => 'use_icons',
-                   object => $self->use_icons,
-                  );
+    $registry->add(preference => $self->use_icons);
 }
 
 sub init {

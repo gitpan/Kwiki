@@ -2,9 +2,16 @@ package Kwiki::Users;
 use strict;
 use warnings;
 use Kwiki::Base '-Base';
+use mixin 'Kwiki::Installer';
 
 const class_id => 'users';
+const class_title => 'Kwiki Users';
 const user_class => 'Kwiki::User';
+
+sub init {
+    $self->hub->config->add_file('user.yaml');
+    $self->hub->load_class('cookie');
+}
 
 sub all {
     ($self->current);
@@ -17,13 +24,11 @@ sub all_ids {
 sub current {
     return $self->{current} = shift if @_;
     return $self->{current} if defined $self->{current};
-    my $user_id = 
-      $self->preferences->user_name->value ||
-      'AnonymousGnome';
+    my $user_id = $ENV{REMOTE_USER} || '';
     $self->{current} = $self->new_user($user_id);
 }
 
-sub new_user { 
+sub new_user {
     $self->user_class->new($self->hub, shift);
 }
 
@@ -31,17 +36,41 @@ package Kwiki::User;
 use base 'Kwiki::Base';
                   
 field 'id';
+field 'name' => '';
         
 sub new() {
     my $class = shift;
     my $self = bless {}, $class;
     $self->hub(shift);
     $self->id(shift);
+    $self->set_user_name;
     return $self;
-}   
+}
+
+sub set_user_name {
+    return unless $self->is_in_cgi;
+    my $name = '';
+    $name = $self->preferences->user_name->value
+      if $self->preferences->can('user_name');
+    $name ||= $self->hub->config->user_default_name;
+    $self->name($name);
+}
+
+sub preferences {
+    return $self->{preferences} = shift if @_;
+    return $self->{preferences} if defined $self->{preferences};
+    my $preferences = $self->hub->load_class('preferences');
+    $self->{preferences} =
+      $preferences->new_preferences($self->preference_values);
+}
+
+sub preference_values { 
+    $self->hub->cookie->jar->{preferences} || {};
+}
 
 1;
 
+package Kwiki::Users;
 __DATA__
 
 =head1 NAME
@@ -66,3 +95,6 @@ under the same terms as Perl itself.
 See http://www.perl.com/perl/misc/Artistic.html
 
 =cut
+
+__config/user.yaml__
+user_default_name: AnonymousGnome

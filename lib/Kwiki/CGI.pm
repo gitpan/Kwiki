@@ -2,6 +2,7 @@ package Kwiki::CGI;
 use strict;
 use warnings;
 use Spoon::CGI '-Base';
+use Kwiki ':char_classes';
 
 sub init {
     $self->add_params('page_id');
@@ -25,9 +26,10 @@ sub page_id {
             ($page_id = $ENV{QUERY_STRING}) =~ s/(.*?)\&.*/$1/;
         }
     }
-    $page_id ||= $self->hub->config->main_page;
-    $page_id =~ s/\W//g;
     $self->utf8_decode($page_id);
+    $page_id = '' if $page_id =~ /[^$ALPHANUM]/;
+    $page_id ||= $self->hub->config->main_page;
+    $self->{page_id} = $page_id;
 }
 
 1;

@@ -1,7 +1,8 @@
 package Kwiki::Files;
 use strict;
 use warnings;
-use Kwiki::Installer '-Base';
+use Kwiki::Base '-Base';
+use mixin 'Kwiki::Installer';
 
 const class_id => 'files';
 const class_title => 'Kwiki Files';
@@ -86,6 +87,38 @@ div.toolbar img {
     border: 0;
     vertical-align: middle;
 }
+__template/tt2/kwiki_doctype.html__
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml11.dtd">
+__template/tt2/kwiki_begin.html__
+<!-- BEGIN kwiki_begin.html -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <title>
+[% IF hub.action == 'display' || hub.action == 'edit' || hub.action ==
+'revisions' %]
+  [% hub.cgi.page_id %] -
+[% END %]
+[% IF hub.action != 'display' %]
+  [% self.class_title %] - 
+[% END %]
+  [% site_title %]</title>
+[% FOR css_file = hub.css.files -%]
+  <link rel="stylesheet" type="text/css" href="[% css_file %]" />
+[% END -%]
+[% FOR javascript_file = hub.javascript.files -%]
+  <script type="text/javascript" src="[% javascript_file %]"></script>
+[% END -%]
+  <link rel="shortcut icon" href="" />
+  <link rel="start" href="index.cgi" title="Home" />
+</head>
+<body>
+<!-- END kwiki_begin.html -->
+__template/tt2/kwiki_end.html__
+<!-- BEGIN kwiki_end.html -->
+</body>
+</html>
+<!-- END kwiki_end.html -->
 __palm90.png__
 iVBORw0KGgoAAAANSUhEUgAAAFoAAABaCAIAAAC3ytZVAAAABmJLR0QA/wD/AP+gvaeTAAAACXBI
 WXMAAAsSAAALEgHS3X78AAAAB3RJTUUH0wUfFicLzVi4twAAGFRJREFUeJztfHmUVNWd//f7vfe9

@@ -2,7 +2,7 @@ package Kwiki::Pages;
 use strict;
 use warnings;
 use Kwiki::Base '-Base';
-use Kwiki::Installer '-base';
+use mixin 'Kwiki::Installer';
 
 const class_id => 'pages';
 const class_title => 'Kwiki Pages';
@@ -44,7 +44,7 @@ sub current {
 
 sub current_id {
     return $self->cgi->page_id ||
-           $self->config->main_page
+           $self->uri_escape($self->config->main_page)
            or die;
 }
 
@@ -118,17 +118,25 @@ sub kwiki_link {
 
 sub edit_by_link {
     my $user_name = $self->metadata->edit_by || 'UnknownUser';
-    $user_name = 'AnonymousGnome'
+    $user_name = $self->hub->config->user_default_name
       if $user_name =~ /[^$ALPHANUM]/;
     $self->hub->pages->kwiki_link($user_name);
 }
 
 sub edit_time {
-    my $edit_time = $self->metadata->edit_time ||
-                    scalar(gmtime($self->modified_time));
-    $edit_time .= ' GMT' 
-      unless $edit_time =~ /GMT$/;
-    return $edit_time;
+    my $edit_time = $self->metadata->edit_unixtime ||
+                    $self->modified_time;
+    return $self->hub->have_plugin('time_zone')
+    ? $self->hub->time_zone->format($edit_time)
+    : $self->format_time($edit_time);
+}
+
+sub format_time {
+    my $unix_time = shift;
+    my $formatted = scalar gmtime $unix_time;
+    $formatted .= ' GMT' 
+      unless $formatted =~ /GMT$/;
+    return $formatted;
 }
 
 sub modified_time {
@@ -198,11 +206,7 @@ sub load {
 
 sub update {
     my $page = shift;
-    my $user_name = '';
-    $user_name = $self->hub->preferences->user_name->value
-      if $self->hub->have_plugin('user_name');
-    $user_name ||= 'AnonymousGnome';
-    $self->edit_by($user_name);
+    $self->edit_by($self->hub->users->current->name);
     my $unixtime = time;
     $self->edit_time(scalar gmtime($unixtime));
     $self->edit_unixtime($unixtime);

@@ -8,6 +8,8 @@ const cgi_class => '';
 const config_file => '';
 const css_file => '';
 const javascript_file => '';
+const screen_template => '';
+field 'preferences';
 field 'page';
 
 sub new {
@@ -15,37 +17,26 @@ sub new {
     super;
 }
 
-sub load() {
-    my $class = shift;
-    my $context = shift;
-    die "NLW::Plugin::load() method reserved for Template Toolkit"
-      unless ref $context eq 'Template::Context';
-    my $self = bless {
-        _CONTEXT => $context,
-    }, $class;
-    {
-        no warnings;
-        $self->hub($main::HUB); # XXX Need a better way for multihub stuff
-    }
-    $self->init;
-    return $self;
-}
-
 sub init {
     $self->cgi_class
     ? $self->use_cgi($self->cgi_class)
     : $self->use_class('cgi');
     $self->use_class('config');
+    $self->use_class('users');
     $self->use_class('pages');
-    $self->use_class('preferences');
     $self->use_class('template');
+    $self->preferences($self->users->current->preferences);
     $self->config->add_file($self->config_file);
     $self->hub->load_class('css')->add_file($self->css_file);
     $self->hub->load_class('javascript')->add_file($self->javascript_file);
 }
 
 sub render_screen {
-    $self->template_process($self->screen_template, @_);
+    my $template = $self->screen_template || 'kwiki_screen.html';
+    $self->template_process($template, 
+        content_pane => $self->class_id . '_content.html',
+        @_,
+    );
 }
 
 sub template_process {

@@ -2,12 +2,13 @@ package Kwiki::Toolbar;
 use strict;
 use warnings;
 use Kwiki::Plugin '-Base';
-use Kwiki::Installer '-base';
+use mixin 'Kwiki::Installer';
 
 const class_id => 'toolbar';
 const class_title => 'Kwiki Toolbar';
 const toolbar_template => 'toolbar_pane.html';
 const css_file => 'toolbar.css';
+const config_file => 'toolbar.yaml';
 
 sub register {
     my $registry = shift;
@@ -24,6 +25,16 @@ sub html {
         push @{$toolmap{$array->[0]}}, {@{$array}[1..$#{$array}]};
     }
     my %classmap = reverse %{$lookup->{classes}};
+    my $x = 1;
+    my %class_ids = map {
+        ($classmap{$_}, $x++)
+    } @{$self->hub->config->plugin_classes};
+    my @class_ids = grep {
+        delete $class_ids{$_}
+    } @{$self->config->toolbar_order};
+    push @class_ids, sort {
+        $class_ids{$a} <=> $class_ids{$b}
+    } keys %class_ids;
     my $toolbar_content = join "|\n", grep {
         defined $_ and do {
             my $button = $_;
@@ -38,9 +49,7 @@ sub html {
         : undef
     } map {
         defined $toolmap{$_} ? @{$toolmap{$_}} : ()
-    } map {
-        $classmap{$_}
-    } @{$self->hub->config->plugin_classes};
+    } @class_ids;
     $self->template->process($self->toolbar_template,
         toolbar_content => $toolbar_content,
     );
@@ -98,3 +107,12 @@ __template/tt2/toolbar_pane.html__
 [% toolbar_content %]
 </div>
 <!-- END toolbar_pane.html -->
+__config/toolbar.yaml__
+toolbar_order:
+- search
+- display
+- recent_changes
+- user_preferences
+- new_page
+- edit
+- revisions
