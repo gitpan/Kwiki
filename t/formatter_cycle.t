@@ -27,7 +27,7 @@ use Kwiki;
     my $kwiki = Kwiki->new;
     my $hub = $kwiki->load_hub({formatter_class => 'Kwiki::Formatter'});
     my $formatter_top =
-        $hub->formatter->top_class->new(hub => $hub, text => text());
+        $hub->formatter->top_class->new(text => text());
 
     $formatter_top->to_html;
 

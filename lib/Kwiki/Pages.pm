@@ -70,21 +70,24 @@ sub id_to_title {
 
 sub new_page {
     my $page_id = shift;
-    my $page = $self->page_class->new(hub => $self->hub, id => $page_id);
+    return if length $page_id > 255;
+    my $page = $self->page_class->new(id => $page_id);
     $page->metadata($self->new_metadata($page_id));
     return $page;
 }
 
 sub new_from_name {
     my $page_name = shift;
-    my $page = $self->new_page($self->name_to_id($page_name));
+    my $id = $self->name_to_id($page_name);
+    my $page = $self->new_page($id);
+    return unless $page;
     $page->title($self->name_to_title($page_name));
     return $page;
 }
 
 sub new_metadata {
     my $page_id = shift or die;
-    $self->meta_class->new(hub => $self->hub, id => $page_id);
+    $self->meta_class->new(id => $page_id);
 }
 
 package Kwiki::Page;
@@ -118,7 +121,7 @@ sub content {
 sub metadata {
     return $self->{metadata} = shift if @_;
     $self->{metadata} ||= 
-      $self->meta_class->new(hub => $self->hub, id => $self->id);
+      $self->meta_class->new(id => $self->id);
     return $self->{metadata} if $self->{metadata}->loaded;
     $self->load_metadata;
     return $self->{metadata};
@@ -188,7 +191,7 @@ sub age_in_seconds {
     return $self->{age_in_seconds} if defined $self->{age_in_seconds};
     my $path = $self->database_directory;
     my $page_id = $self->id;
-    return $self->{age_in_seconds} = int((-M "$path/$page_id") * 86400);
+    return $self->{age_in_seconds} = (time - $self->modified_time);
 }
 
 sub to_html {

@@ -1,6 +1,5 @@
 package Kwiki::Theme::Basic;
 use Kwiki::Theme -Base;
-use mixin 'Kwiki::Installer';
 
 const theme_id => 'basic';
 const class_title => 'Basic Theme';
@@ -29,59 +28,37 @@ under the same terms as Perl itself.
 See http://www.perl.com/perl/misc/Artistic.html
 
 =cut
-__theme/basic/template/tt2/kwiki_screen.html__
+__theme/basic/template/tt2/theme_screen.html__
 
-[%- INCLUDE kwiki_doctype.html %]
-[% INCLUDE kwiki_begin.html %]
+[%- INCLUDE theme_html_doctype.html %]
+[% INCLUDE theme_html_begin.html %]
 <table id="group"><tr>
 <td id="group_1">
 <div class="navigation">
-<div id="title_pane">
-<h1>
-[% screen_title || self.class_title %]
-</h1>
+[% INCLUDE theme_title_pane.html %]
+[% INCLUDE theme_toolbar_pane.html %]
+[% INCLUDE theme_status_pane.html %]
 </div>
-
-<div id="toolbar_pane">
-[% hub.toolbar.html %]
-[% IF hub.have_plugin('user_name') %]
-[% INCLUDE user_name_title.html %]
-[% END %]
-</div>
-
-<div id="status_pane">
-[% hub.status.html %]
-</div>
-</div><!-- navigation -->
 
 <hr />
-<div id="content_pane">
-[% INCLUDE $content_pane %]
-</div>
+[% INCLUDE theme_content_pane.html %]
 <hr />
 
 <div class="navigation">
-<div id="toolbar_pane_2">
-[% hub.toolbar.html %]
+[% INCLUDE theme_toolbar2_pane.html %]
 </div>
-</div><!-- navigation -->
 </td>
 
 <td id="group_2">
 <div class="navigation">
-<div id="logo_pane">
-<img src="[% logo_image %]" align="center" alt="Kwiki Logo" title="[% site_title %]" />
-</div>
+[% INCLUDE theme_logo_pane.html %]
 <br/>
-
-<div id="widgets_pane">
-[% hub.widgets.html %]
+[% INCLUDE theme_widgets_pane.html %]
 </div>
-</div><!-- navigation -->
 
 </td>
 </tr></table>
-[% INCLUDE kwiki_end.html -%]
+[% INCLUDE theme_html_end.html -%]
 
 __theme/basic/css/kwiki.css__
 #logo_pane {

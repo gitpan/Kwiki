@@ -76,52 +76,6 @@ Kwiki Plugin Installation Notes
 1) Download and install plugins from CPAN
 2) Add the new module names to the 'plugins' config file
 3) Type 'kwiki -update'
-__css/icons.css__
-div.toolbar img {
-    margin: 0;
-    padding: 0;
-    border: 0;
-    vertical-align: middle;
-}
-__template/tt2/kwiki_doctype.html__
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml11.dtd">
-
-__template/tt2/kwiki_begin.html__
-
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-  <title>
-[% IF hub.action == 'display' || 
-      hub.action == 'edit' || 
-      hub.action == 'revisions' 
-%]
-  [% hub.cgi.page_name %] -
-[% END %]
-[% IF hub.action != 'display' %]
-  [% self.class_title %] - 
-[% END %]
-  [% site_title %]</title>
-[%# FOR link = hub.links.all -%]
-<!-- XXX Kwiki::Atom might need this, but it breaks Hub::AUTOLOAD
-  <link rel="[% link.rel %]" type="[% link.type %]" href="[% link.href %]" />
--->
-[%# END %]
-[% FOR css_file = hub.css.files -%]
-  <link rel="stylesheet" type="text/css" href="[% css_file %]" />
-[% END -%]
-[% FOR javascript_file = hub.javascript.files -%]
-  <script type="text/javascript" src="[% javascript_file %]"></script>
-[% END -%]
-  <link rel="shortcut icon" href="" />
-  <link rel="start" href="[% script_name %]" title="Home" />
-</head>
-<body>
-__template/tt2/kwiki_end.html__
-</body>
-</html>
-
 __palm90.png__
 iVBORw0KGgoAAAANSUhEUgAAAFoAAABaCAIAAAC3ytZVAAAABmJLR0QA/wD/AP+gvaeTAAAACXBI
 WXMAAAsSAAALEgHS3X78AAAAB3RJTUUH0wUfFicLzVi4twAAGFRJREFUeJztfHmUVNWd//f7vfe9

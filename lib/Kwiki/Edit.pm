@@ -41,15 +41,14 @@ sub save {
     $page->content($self->cgi->page_content);
     if ($page->modified_time != $self->cgi->page_time) {
         my $page_uri = $page->uri;
-        return $self->redirect("action=edit_contention&page_name=$page_uri");
+        return $self->redirect("action=edit_contention;page_name=$page_uri");
     }
     $page->update->store;
     return $self->redirect($page->uri);
 }
 
 sub preview {
-    $self->use_class('formatter');
-    my $preview = $self->formatter->text_to_html($self->cgi->page_content);
+    my $preview = $self->hub->formatter->text_to_html($self->cgi->page_content);
     $self->render_screen(
         preview_content => $preview,
     );
@@ -105,7 +104,7 @@ default_content: Enter your own page content here.
 __template/tt2/edit_button.html__
 [% IF hub.pages.current.is_writable %]
 [% rev_id = hub.have_plugin('revisions') ? hub.revisions.revision_id : 0 %]
-<a href="[% script_name %]?action=edit&page_name=[% page_uri %][% IF rev_id %]&revision_id=[% rev_id %][% END %]" accesskey="e" title="Edit This Page">
+<a href="[% script_name %]?action=edit;page_name=[% page_uri %][% IF rev_id %];revision_id=[% rev_id %][% END %]" accesskey="e" title="Edit This Page">
 [% INCLUDE edit_button_icon.html %]
 </a>
 [% END %]

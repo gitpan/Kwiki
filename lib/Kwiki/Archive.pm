@@ -11,7 +11,6 @@ sub register {
 }
 
 sub init {
-    $self->use_class('pages');
     if ($self->empty) {
         $self->generate;
         $self->commit_all;

@@ -24,13 +24,15 @@ sub display_changed_by {
 
 sub display {
     my $page = $self->pages->current;
+    return $self->redirect('')
+      unless $page;
     my $page_title = $page->title;
     my $page_uri = $page->uri;
-    return $self->redirect("action=edit&page_name=$page_uri")
+    return $self->redirect("action=edit;page_name=$page_uri")
       if not($page->exists) and $self->have_plugin('edit');
     my $script = $self->config->script_name;
     my $screen_title = $self->hub->have_plugin('search')
-    ? "<a href=\"$script?action=search&search_term=$page_uri\">$page_title</a>"
+    ? "<a href=\"$script?action=search;search_term=$page_uri\">$page_title</a>"
     : $page_title;
     eval {
         $page->content;
@@ -71,7 +73,7 @@ See http://www.perl.com/perl/misc/Artistic.html
 
 =cut
 __template/tt2/home_button.html__
-<a href="[% script_name %]?[% main_page %]" accesskey="h" title="Home Page">
+<a href="[% script_name %]?" accesskey="h" title="Home Page">
 [% INCLUDE home_button_icon.html %]
 </a>
 __template/tt2/home_button_icon.html__

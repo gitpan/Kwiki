@@ -16,7 +16,6 @@ sub load {
         next unless $hash->{object};
         my $object = $hash->{object}->clone;
         $object->value($values->{$_});
-        $object->hub($self->hub);
         push @{$self->objects_by_class->{$class_id}}, $object;
         field($_);
         $self->$_($object);
@@ -27,7 +26,6 @@ sub load {
 sub new_preferences {
     my $values = shift;
     my $new = bless {}, ref $self;
-    $new->hub($self->hub);
     $new->load($values);
     return $new;
 }

@@ -2,11 +2,12 @@ package Kwiki::Formatter;
 use Spoon::Formatter -Base;
 use mixin 'Kwiki::Installer';
 
+const config_class => 'Kwiki::Config';
 const class_id => 'formatter';
 const class_title => 'Kwiki Formatter';
 const top_class => 'Kwiki::Formatter::Top';
 const class_prefix => 'Kwiki::Formatter::';
-const all_blocks => [qw(wafl_block hr heading ul ol pre table p)];
+const all_blocks => [qw(comment wafl_block hr heading ul ol pre table p)];
 const all_phrases => [qw(
     asis wafl_phrase forced 
     titlehyper titlewiki titlemailto 
@@ -37,6 +38,26 @@ sub formatter_classes {
 package Kwiki::Formatter::Top;
 use base 'Spoon::Formatter::Container';
 const formatter_id => 'top';
+
+################################################################################
+package Kwiki::Formatter::Comment;
+use base 'Spoon::Formatter::Unit';
+const formatter_id => 'comment';
+
+const html_start => "<!-- \n";
+const html_end => " -->\n";
+
+sub match {
+    return unless $self->text =~ /^((?:#[\ \t].*\n)+)/m;
+    $self->set_match;
+}
+
+sub text_filter {
+    my $comment = shift;
+    $comment =~ s/^# //gm;
+    $comment =~ s/-/&#45;/g;
+    return $comment;
+}
 
 ################################################################################
 package Kwiki::Formatter::Line;
@@ -313,7 +334,9 @@ sub html {
     my $target = $1;
     my $script = $self->hub->config->script_name;
     my $text = $self->escape_html( $target );
-    my $class = $self->hub->pages->new_from_name($target)->exists
+    my $page = $self->hub->pages->new_from_name($target);
+    return $target unless $page;
+    my $class = $page->exists
       ? '' : ' class="empty"';
     return qq(<a href="$script?$target"$class>$target</a>);
 }
@@ -365,7 +388,9 @@ sub html {
     my $page_name = $self->escape_html($self->matched);
     return $page_name
       if $page_name =~ s/^!//;
-    $self->hub->pages->new_from_name($page_name)->kwiki_link;
+    my $page = $self->hub->pages->new_from_name($page_name);
+    return $page_name unless $page;
+    return $page->kwiki_link;
 }
 
 ################################################################################
@@ -379,7 +404,9 @@ const pattern_start =>
 sub html {
     my $text = $self->escape_html($self->matched);
     my ($label, $page_name) = ($text =~ $self->pattern_start);
-    $self->hub->pages->new_from_name($page_name)->kwiki_link($label);
+    my $page = $self->hub->pages->new_from_name($page_name);
+    return $label unless $page;
+    return $page->kwiki_link($label);
 }
 
 ################################################################################

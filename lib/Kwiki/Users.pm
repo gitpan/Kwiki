@@ -26,7 +26,7 @@ sub current {
 }
 
 sub new_user {
-    $self->user_class->new(hub => $self->hub, id => shift);
+    $self->user_class->new(id => shift);
 }
 
 package Kwiki::User;

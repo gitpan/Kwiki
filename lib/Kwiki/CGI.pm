@@ -22,8 +22,8 @@ sub page_name {
                             grep length($_),
                             split /;?keywords=/, $query_string;
         }
-        elsif ($ENV{QUERY_STRING} and $ENV{QUERY_STRING} =~ /[^=&]+&/) {
-            ($page_name = $ENV{QUERY_STRING}) =~ s/(.*?)\&.*/$1/;
+        elsif ($ENV{QUERY_STRING} and $ENV{QUERY_STRING} =~ /[^=&;]+[&;]/) {
+            ($page_name = $ENV{QUERY_STRING}) =~ s/(.*?)[&;].*/$1/;
         }
     }
     $page_name = '' if defined $page_name && $page_name =~ /=/;

@@ -6,8 +6,17 @@ const cgi_class => '';
 const config_file => '';
 const css_file => '';
 const javascript_file => '';
-const screen_template => 'kwiki_screen.html';
+const screen_template => 'theme_screen.html';
 const class_title_prefix => 'Kwiki';
+const config_class => 'Kwiki::Config';
+
+field cgi      => -init => '$self->hub->cgi';
+field config   => -init => '$self->hub->config';
+field users    => -init => '$self->hub->users';
+field pages    => -init => '$self->hub->pages';
+field template => -init => '$self->hub->template';
+field preferences => 
+      -init => '$self->users->current->preferences';
 
 sub new {
     return $self if ref $self;
@@ -15,20 +24,21 @@ sub new {
 }
 
 sub init {
-    $self->cgi_class
-    ? $self->use_cgi($self->cgi_class)
-    : $self->use_class('cgi');
-    $self->use_class('config');
-    $self->use_class('users');
-    $self->use_class('pages');
-    $self->use_class('template');
+    $self->init_cgi;
     $self->config->add_file($self->config_file);
     $self->hub->css->add_file($self->css_file);
     $self->hub->javascript->add_file($self->javascript_file);
 }
 
-sub preferences {
-    $self->users->current->preferences;
+sub init_cgi {
+    my $class = $self->cgi_class
+      or return;
+    eval qq{require $class} unless $class->can('new');
+    my $package = ref($self);
+    field -package => $package, 'cgi';
+    my $object = $class->new;
+    $object->init;
+    $self->cgi($object);
 }
 
 sub render_screen {
@@ -60,7 +70,7 @@ sub redirect_url {
     return $target 
       if $target =~ /^(https?:|\/)/i or 
          $target =~ /\?/;
-    $self->config->script_name . '?' . $target;
+    CGI::url(-full => 1) . '?' . $target;
 }
 
 sub new_preference {

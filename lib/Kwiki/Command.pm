@@ -7,7 +7,6 @@ sub handle_new {
     $self->install('files');
     $self->install('config');
     $self->create_registry;
-    $self->hub->registry->load;
     # XXX a method should return this list of plugin class_ids
     $self->install('display');
     $self->install('edit');
@@ -103,7 +102,6 @@ sub handle_update {
     die "Can't update non Kwiki directory!\n"
       unless -d 'plugin';
     $self->create_registry;
-    $self->hub->registry->load;
     $self->install($_) for $self->all_class_ids;
     $self->set_permissions;
 }
@@ -219,8 +217,7 @@ sub fake_install {
 
 sub handle_compress {
     require Spoon::Installer;
-    field hub => -package => 'Spoon::Installer';
-    Spoon::Installer->new(hub => $self->hub)->compress_lib(@_);
+    Spoon::Installer->new->compress_lib(@_);
 }
 
 sub set_permissions {
@@ -232,18 +229,20 @@ sub set_permissions {
 }
 
 sub create_registry {
-    my $hub = Kwiki->new->load_hub('config.yaml', -plugins => 'plugins');
-    my $registry = $hub->registry;
+    my $registry = $self->hub->registry;
     my $registry_path = $registry->registry_path;
     $self->msg("Generating Kwiki Registry '$registry_path'\n");
     $registry->update;
     if ($registry->validate) {
         $registry->write;
     }
+    $self->hub();
+    
+    $self->hub->registry->load;
 }
 
 sub usage {
-    warn <<END;
+    warn <<END . $self->command_usage("  kwiki -%-20s # %s\n");
 usage:
   kwiki -new [path]           # Generate a new Kwiki
   kwiki -update [path]        # Update an existing Kwiki

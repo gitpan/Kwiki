@@ -4,6 +4,7 @@ use mixin 'Kwiki::Installer';
 
 const class_id => 'icons';
 const css_file => 'icons.css';
+const config_file => 'icons.yaml';
 
 sub class_title {
     $self->usage;
@@ -74,3 +75,6 @@ under the same terms as Perl itself.
 See http://www.perl.com/perl/misc/Artistic.html
 
 =cut
+
+__config/icons.yaml__
+icons_on_by_default: 1

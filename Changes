@@ -1,4 +1,24 @@
 ---
+version: 0.38
+date:    Mon Apr  4 07:44:29 PDT 2005
+changes:
+- Tweak for Kwiki-HomePagePreference
+- Allow the hub to be hooked.
+- Socialtext changes
+- Allow ; in addition to & in query strings
+- Get rid of -M operators
+- Make redirects RFC compliant
+- Refactored themes
+- empty links cause double page loads
+- Refactors to get rid of hub connections
+- eliminate use_class
+- COmment support
+- Kwid Formatter for Spork
+- Also prints command usage from plugins.
+- copyright 2005
+- tweak space on usage()
+- eliminate cleanup undef warning when doing 'kwiki -update'
+---
 version: 0.37
 date:    Tue Jan 11 07:45:24 PST 2005
 changes:

@@ -1,11 +1,13 @@
 package Kwiki;
-use Spoon 0.21 -Base;
-our $VERSION = '0.37';
+use Spoon 0.22 -Base;
+our $VERSION = '0.38';
 
 const config_class => 'Kwiki::Config';
 
 sub process {
     my $hub = $self->load_hub(@_);
+    $hub->registry->load;
+    $hub->add_hooks;
     $hub->pre_process;
     my $html = $hub->process;
     if (defined $html) {
@@ -19,6 +21,7 @@ sub process {
     }
     close STDOUT unless $self->using_debug;
     $hub->post_process;
+    return $self;
 }
 
 __DATA__
