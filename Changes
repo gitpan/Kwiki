@@ -1,4 +1,15 @@
 ---
+version: 0.36
+date:    Sat Dec 18 00:52:03 PST 2004
+changes:
+- Make dependent on new Spoon which cures memory cycles
+- Add more of Dave Rolsky's tests
+---
+version: 0.35
+date:    Sat Dec 18 00:38:39 PST 2004
+changes:
+- Make compatible with Kwiki-0.34
+---
 version: 0.35
 date:    Fri Dec 17 02:46:43 PST 2004
 changes:

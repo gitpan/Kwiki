@@ -46,9 +46,11 @@ MANIFEST			This list of files
 META.yml
 README
 t/compile.t
+t/cycle.t
 t/Formatter.pm
 t/formatter1.t
 t/formatter2.t
 t/formatter3.t
+t/formatter4.t
 t/formatter_cycle.t
 t/TestChunks.pm

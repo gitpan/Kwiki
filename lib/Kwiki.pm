@@ -1,6 +1,6 @@
 package Kwiki;
 use Spoon 0.19 -Base;
-our $VERSION = '0.35';
+our $VERSION = '0.36';
 
 const config_class => 'Kwiki::Config';
 
