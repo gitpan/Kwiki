@@ -1,14 +1,12 @@
 package Kwiki::Icons;
-use strict;
-use warnings;
-use Kwiki::Plugin '-Base';
+use Kwiki::Plugin -Base;
 use mixin 'Kwiki::Installer';
 
 const class_id => 'icons';
 const css_file => 'icons.css';
 
 sub class_title {
-    die "Don't use Kwiki::Icons directly. Use a subclass of it.";
+    $self->usage;
 }
 
 sub register {
@@ -45,10 +43,12 @@ sub correct_template_path {
 }
 
 sub icons_path {
-    die "Don't use Kwiki::Icons directly. Use a subclass of it.";
+    $self->usage;
 }
 
-1;
+sub usage {
+    die "Don't use Kwiki::Icons directly. Use a subclass of it.";
+}
 
 __DATA__
 

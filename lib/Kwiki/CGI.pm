@@ -1,38 +1,41 @@
 package Kwiki::CGI;
-use strict;
-use warnings;
-use Spoon::CGI '-Base';
+use Spoon::CGI -Base;
 use Kwiki ':char_classes';
 
 sub init {
-    $self->add_params('page_id');
+    $self->add_params('page_name');
 }
 
 cgi 'action';
 cgi 'button';
 
-sub page_id {
-    return $self->{page_id} = shift if @_;
-    return $self->{page_id}
-      if defined $self->{page_id};
-    my $page_id = CGI::param('page_id');
-    if (not defined $page_id) {
+sub page_name {
+    return $self->{page_name} = shift if @_;
+    return $self->{page_name}
+      if defined $self->{page_name};
+    my $page_name = CGI::param('page_name');
+    if (not defined $page_name) {
         my $query_string = CGI::query_string();
         $query_string =~ s/%([0-9a-fA-F]{2})/pack("H*", $1)/ge;
         if ($query_string =~ /^keywords=/) {
-            $page_id = join ' ', grep $_, split /;?keywords=/, $query_string;
+            $page_name = join ' ',
+                            grep length($_),
+                            split /;?keywords=/, $query_string;
         }
         elsif ($ENV{QUERY_STRING} and $ENV{QUERY_STRING} =~ /[^=&]+&/) {
-            ($page_id = $ENV{QUERY_STRING}) =~ s/(.*?)\&.*/$1/;
+            ($page_name = $ENV{QUERY_STRING}) =~ s/(.*?)\&.*/$1/;
         }
     }
-    $page_id = $self->uri_unescape($page_id);
-    $page_id = '' if $page_id and $page_id =~ /[^$ALPHANUM]/;
-    $page_id ||= $self->hub->config->main_page;
-    $self->{page_id} = $page_id;
+    $page_name = '' if defined $page_name && $page_name =~ /=/;
+    $page_name = $self->uri_unescape($page_name);
+    $self->{page_name} = $self->set_default_page_name($page_name);
 }
 
-1;
+sub set_default_page_name {
+    my $page_name = shift;
+    $page_name = '' if $page_name and $page_name =~ /[^$ALPHANUM]/;
+    $page_name ||= $self->hub->config->main_page;
+}
 
 __DATA__
 

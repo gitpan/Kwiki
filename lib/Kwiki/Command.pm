@@ -1,34 +1,46 @@
 package Kwiki::Command;
-use strict;
-use warnings;
-use Kwiki::Base '-Base';
+use Kwiki::Base -Base;
+
+field quiet => 0;
 
 sub init {
     $self->use_class('config');
 }
 
-sub boolean_arguments { qw(-new -update -add -remove -install -compress) }
+sub boolean_arguments { 
+    qw(
+        -new -update -update_all
+        -add -remove -install 
+        -subwiki -compress
+        -q -quiet
+    ) 
+}
+
 sub process {
     my ($args, @values) = $self->parse_arguments(@_);
+    $self->quiet(1)
+      if $args->{-q} || $args->{-quiet};
     return $self->new_kwiki(@values)
       if $args->{-new};
     return $self->update_kwiki(@values)
       if $args->{-update};
+    return $self->update_all_kwikis(@values)
+      if $args->{-update_all};
     return $self->update_plugins('+', @values)
       if $args->{-add};
     return $self->update_plugins('-', @values)
       if $args->{-remove};
     return $self->install_plugins(@values)
       if $args->{-install};
+    return $self->create_subwiki(@values)
+      if $args->{-subwiki};
     return $self->compress_kwiki(@values)
       if $args->{-compress};
     return $self->usage;
 }
 
 sub new_kwiki {
-    chdir io->dir(shift || '.')->assert->open . '';
-    die "Can't make new Kwiki in a non-empty directory\n"
-      unless io('.')->empty;
+    $self->assert_directory(shift, 'Kwiki');
     $self->add_new_default_config;
     $self->install('files');
     $self->install('config');
@@ -43,9 +55,53 @@ sub new_kwiki {
     $self->install('toolbar');
     $self->install('status');
     $self->install('widgets');
-    $self->install('htaccess');
+    io('plugin')->mkdir;
     $self->set_permissions;
     warn "\nKwiki software installed! Point your browser at this location.\n\n";
+}
+
+sub create_subwiki {
+    $self->assert_directory(shift, 'subwiki');
+    die "Parent directory does not look like a Kwiki installation"
+      unless -e '../plugins';
+    require Cwd;
+    my $home = Cwd::cwd();
+    $home =~ s/.*\///;
+    for my $file (io->updir->all) {
+        my $name = $file->filename;
+        next if $name eq '.htaccess';
+        next if $name eq 'plugins';
+        next if $name eq 'registry.dd';
+        next if $name eq $home;
+        io->link($name)->symlink($file->name);
+    }
+    $self->create_subwiki_plugins;
+    $self->update_kwiki;
+    print <<END;
+
+Subwiki created. Now edit the $home/plugins file and run 
+'kwiki -update' in the '$home' subdirectory.
+END
+}
+
+sub create_subwiki_plugins {
+    io('plugins')->print(<<END);
+# You can either list all the plugins you want manually, or put '+' and '-' in
+# front of the plugins you want to add/remove from ../plugins respectively.
+#
+# Example:
+#
+# -Kwiki::Edit
+# +Kwiki::Favorites
+# +Kwiki::Weather
+END
+}
+
+sub assert_directory {
+    chdir io->dir(shift || '.')->assert->open->name;
+    my $noun = shift;
+    die "Can't make new $noun in a non-empty directory\n"
+      unless io('.')->empty;
 }
 
 sub add_new_default_config {
@@ -58,7 +114,6 @@ sub add_new_default_config {
             toolbar_class => 'Kwiki::Toolbar',
             status_class => 'Kwiki::Status',
             widgets_class => 'Kwiki::Widgets',
-            htaccess_class => 'Kwiki::Htaccess',
         }
     );
 }
@@ -69,9 +124,19 @@ sub install {
       or return;
     return unless $object->can('extract_files');
     my $class_title = $self->hub->$class_id->class_title;
-    warn "Extracting files for $class_title:\n";
+    $self->msg("Extracting files for $class_title:\n");
+    $self->hub->$class_id->quiet($self->quiet);
     $self->hub->$class_id->extract_files;
-    warn "\n";
+    $self->msg("\n");
+}
+
+sub msg {
+    warn @_ unless $self->quiet;
+}
+
+sub is_kwiki_dir {
+    my $dir = shift || '.';
+    -d "$dir/plugin" and -f "$dir/registry.dd";
 }
 
 sub update_kwiki {
@@ -82,6 +147,16 @@ sub update_kwiki {
     $self->hub->load_registry;
     $self->install($_) for $self->all_class_ids;
     $self->set_permissions;
+}
+
+sub update_all_kwikis {
+    my @dirs = (io->curdir, io->curdir->All_Dirs);
+    while (my $dir = shift @dirs) {
+        next unless $self->is_kwiki_dir($dir);
+        $self->msg('Updating ', $dir->absolute->pathname, "\n");
+        $dir->chdir;
+        system("kwiki -quiet -update");
+    }
 }
 
 sub all_class_ids {
@@ -136,10 +211,14 @@ sub install_plugins {
     require Cwd;
     $self->cpan_setup;
     my @modules = @_;
-    for (@_) {
-        $self->fake_install($_);
+    for my $module (@_) {
+        $self->fake_install($module);
         my $home = Cwd::cwd();
-        CPAN::Shell->expand('Module', $_)->install;
+        my $rc = CPAN::Shell->expand('Module', $module);
+        if (not defined $rc) {
+            die "WARNING - Can't install $module\nStopping...\n";
+        }
+        $rc->install;
         chdir $home;
     }
     $self->update_plugins('+', @modules);
@@ -148,7 +227,7 @@ sub install_plugins {
 sub cpan_setup {
     no warnings;
     require CPAN;
-    require CPAN::Config;
+#     require CPAN::Config;
     my $lib = io->dir('lib')->absolute;
     $ENV{PERL_MM_OPT} = "INSTALLSITELIB=$lib PREFIX=$lib"
       if $lib->exists;
@@ -173,7 +252,7 @@ sub fake_install {
 
 sub compress_kwiki {
     require Spoon::Installer;
-    Spoon::Installer::compress_lib($self, @_);
+    Spoon::Installer->new(hub => $self->hub)->compress_lib(@_);
 }
 
 sub set_permissions {
@@ -188,22 +267,25 @@ sub create_registry {
     my $hub = Kwiki->new->load_hub('config.yaml', -plugins => 'plugins');
     my $registry = $hub->load_class('registry');
     my $registry_path = $registry->registry_path;
-    warn "Generating Kwiki Registry '$registry_path'\n";
+    $self->msg("Generating Kwiki Registry '$registry_path'\n");
     $registry->update;
+    if ($registry->validate) {
+        $registry->write;
+    }
 }
 
 sub usage {
     warn <<END;
 usage:
   kwiki -new [path]           # Generate a new Kwiki
-  kwiki -update [path]        # Upgrade an existing Kwiki
+  kwiki -update [path]        # Update an existing Kwiki
   kwiki -add Kwiki::Foo       # Add a plugin
   kwiki -remove Kwiki::Foo    # Remove a plugin
   kwiki -install Kwiki::Foo   # Download and install a plugin
+  kwiki -subwiki [subdir]     # Create a subwiki under an existing Kwiki
+  kwiki -update_all           # Update all Kwiki dirs under current dir
 END
 }
-
-1;
 
 __DATA__
 
@@ -219,6 +301,7 @@ Kwiki::Command - Kwiki Command Line Tool Module
     > vim config.yaml
     > kwiki -update
     > kwiki -remove RecentChanges
+    > kwiki -subwiki admin
 
 =head1 DESCRIPTION
 

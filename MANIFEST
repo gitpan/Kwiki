@@ -12,6 +12,7 @@ kwiki
 lib/Kwiki.pm
 lib/Kwiki/Archive.pm
 lib/Kwiki/Base.pm
+lib/Kwiki/BrowserDetect.pm
 lib/Kwiki/CGI.pm
 lib/Kwiki/Command.pm
 lib/Kwiki/Config.pm
@@ -22,12 +23,12 @@ lib/Kwiki/Display.pm
 lib/Kwiki/Edit.pm
 lib/Kwiki/Files.pm
 lib/Kwiki/Formatter.pm
-lib/Kwiki/Htaccess.pm
 lib/Kwiki/Hub.pm
 lib/Kwiki/Icons.pm
 lib/Kwiki/Installer.pm
 lib/Kwiki/Javascript.pm
 lib/Kwiki/Pages.pm
+lib/Kwiki/Pane.pm
 lib/Kwiki/Plugin.pm
 lib/Kwiki/Preferences.pm
 lib/Kwiki/Registry.pm
@@ -38,13 +39,16 @@ lib/Kwiki/Theme.pm
 lib/Kwiki/Theme/Basic.pm
 lib/Kwiki/Toolbar.pm
 lib/Kwiki/Users.pm
+lib/Kwiki/WebFile.pm
 lib/Kwiki/Widgets.pm
 Makefile.PL
 MANIFEST			This list of files
 META.yml
 README
 t/compile.t
+t/Formatter.pm
 t/formatter1.t
 t/formatter2.t
 t/formatter3.t
+t/formatter_cycle.t
 t/TestChunks.pm

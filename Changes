@@ -1,4 +1,20 @@
 ---
+version: 0.34
+date:    Wed Dec 15 13:55:58 PST 2004
+- Kwiki is now memory cycle free, which makes it much more suitable for use under mod_perl
+- Added Pane superclass for Toolbar Widgets and Status
+- Added BrowserDetect module
+- Removed Htaccess module
+- Added Kwiki::WebFile base class
+- Use new Spoon::Hook for archive
+- Make path configurable for templates, css, and javascript
+- Add -subwiki and -update_all actions to installer.
+- Add -quiet/-q options to installer
+- Add BEGIN/END comments to templates automatically
+- Make installer smarter
+- Plugins can specify prerequisites
+- Add ip address to page metadata
+---
 version: 0.33
 date:    Sun Aug  8 23:12:30 PDT 2004
 changes:

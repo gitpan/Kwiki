@@ -1,9 +1,5 @@
 package Kwiki::Template;
-use strict;
-use warnings;
-use Spoon::Template '-base';
-
-1;
+use Spoon::Template -Base;
 
 __DATA__
 

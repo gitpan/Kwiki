@@ -1,7 +1,5 @@
 package Kwiki::Theme;
-use strict;
-use warnings;
-use Kwiki::Plugin '-Base';
+use Kwiki::Plugin -Base;
 
 const class_id => 'theme';
 
@@ -12,10 +10,18 @@ sub register {
                   );
 }
 
+sub load_pane_classes {
+    $self->load_class('toolbar');
+    $self->load_class('widgets');
+    $self->load_class('status');
+}
+
 const default_template_path => "theme/%s/template/tt2";
 const default_css_path => "theme/%s/css";
 const default_javascript_path => "theme/%s/javascript";
+
 const default_css_file => 'kwiki.css';
+const default_javascript_file => '';
 
 sub init {
     super;
@@ -32,11 +38,16 @@ sub init {
       sprintf $self->default_javascript_path, $theme_id;
     $self->hub->javascript->add_path($javascript_path)
       if -e $javascript_path;
-    $self->hub->css->add_file($self->default_css_file);
-    $self->hub->load_class('cookie');
+    $self->hub->css->add_file
+      (ref $self->default_css_file
+          ? @{$self->default_css_file}
+          : $self->default_css_file);
+    $self->hub->javascript->add_file
+      (ref $self->default_javascript_file
+          ? @{$self->default_javascript_file}
+          : $self->default_javascript_file);
+    $self->hub->load_class('cookie'); 
 }
-
-1;
 
 __DATA__
 

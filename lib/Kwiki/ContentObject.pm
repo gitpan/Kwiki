@@ -1,9 +1,5 @@
 package Kwiki::ContentObject;
-use strict;
-use warnings;
-use Spoon::ContentObject '-Base';
-
-1;
+use Spoon::ContentObject -Base;
 
 __DATA__
 

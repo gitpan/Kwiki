@@ -1,7 +1,5 @@
 package Kwiki::Formatter;
-use strict;
-use warnings;
-use Spoon::Formatter '-Base';
+use Spoon::Formatter -Base;
 use mixin 'Kwiki::Installer';
 
 const class_id => 'formatter';
@@ -422,8 +420,6 @@ const formatter_id => 'asis';
 const pattern_start => qr/\{\{/;
 const pattern_end => qr/\}\}/;
 
-1;
-
 package Kwiki::Formatter;
 __DATA__
 
@@ -474,4 +470,4 @@ table.formatter_table td {
 span.wafl_error {
     color: #f00;
     text-decoration: underline;
-}
+

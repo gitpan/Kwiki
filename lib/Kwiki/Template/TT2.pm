@@ -1,11 +1,8 @@
 package Kwiki::Template::TT2;
-use strict;
-use warnings;
-use Spoon::Template::TT2 '-Base';
+use Spoon::Template::TT2 -Base;
+use Spoon::Base 'conf';
 
-const default_path => [ './template/tt2' ];
-
-1;
+conf template_path => [ './template/tt2' ];
 
 __DATA__
 

@@ -1,9 +1,7 @@
 package Kwiki::Cookie;
-use strict;
-use warnings;
-use Spoon::Cookie '-base';
+use Spoon::Cookie -Base;
 
-1;
+const prefix => 'Kwiki-';
 
 __END__
 

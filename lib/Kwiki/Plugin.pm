@@ -1,14 +1,11 @@
 package Kwiki::Plugin;
-use strict;
-use warnings;
-use Spoon::Plugin '-Base';
+use Spoon::Plugin -Base;
 
 stub 'class_id';
 const cgi_class => '';
 const config_file => '';
 const css_file => '';
 const javascript_file => '';
-field 'preferences';
 const screen_template => 'kwiki_screen.html';
 
 sub new {
@@ -24,10 +21,13 @@ sub init {
     $self->use_class('users');
     $self->use_class('pages');
     $self->use_class('template');
-    $self->preferences($self->users->current->preferences);
     $self->config->add_file($self->config_file);
     $self->hub->load_class('css')->add_file($self->css_file);
     $self->hub->load_class('javascript')->add_file($self->javascript_file);
+}
+
+sub preferences {
+    $self->users->current->preferences;
 }
 
 sub class_title {
@@ -57,14 +57,21 @@ sub template_process {
 }
 
 sub redirect {
-    return { redirect => $self->config->script_name . '?' . shift};
+    $self->hub->headers->redirect($self->redirect_url(@_));
+    return '';
+}
+
+sub redirect_url {
+    my $target = shift;
+    return $target 
+      if $target =~ /^(https?:|\/)/i or 
+         $target =~ /\?/;
+    $self->config->script_name . '?' . $target;
 }
 
 sub new_preference {
     $self->hub->load_class('preferences')->new_preference(scalar(caller), @_);
 }
-
-1;
 
 __DATA__
 

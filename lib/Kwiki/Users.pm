@@ -1,7 +1,5 @@
 package Kwiki::Users;
-use strict;
-use warnings;
-use Kwiki::Base '-Base';
+use Kwiki::Base -Base;
 use mixin 'Kwiki::Installer';
 
 const class_id => 'users';
@@ -10,7 +8,6 @@ const user_class => 'Kwiki::User';
 
 sub init {
     $self->hub->config->add_file('user.yaml');
-    $self->hub->load_class('cookie');
 }
 
 sub all {
@@ -62,10 +59,8 @@ sub preferences {
 }
 
 sub preference_values { 
-    $self->hub->cookie->jar->{preferences} || {};
+    $self->hub->load_class('cookie')->jar->{preferences} || {};
 }
-
-1;
 
 package Kwiki::Users;
 __DATA__

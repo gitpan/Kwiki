@@ -1,13 +1,9 @@
 package Kwiki::Hub;
-use strict;
-use warnings;
-use Spoon::Hub '-Base';
+use Spoon::Hub -Base;
 
 sub action {
     $self->load_class('cgi')->action || 'display';
 }
-
-1;
 
 __DATA__
 

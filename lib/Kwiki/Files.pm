@@ -1,13 +1,9 @@
 package Kwiki::Files;
-use strict;
-use warnings;
-use Kwiki::Base '-Base';
+use Kwiki::Base -Base;
 use mixin 'Kwiki::Installer';
 
 const class_id => 'files';
 const class_title => 'Kwiki Files';
-
-1;
 
 __DATA__
 
@@ -88,9 +84,11 @@ div.toolbar img {
     vertical-align: middle;
 }
 __template/tt2/kwiki_doctype.html__
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml11.dtd">
+
 __template/tt2/kwiki_begin.html__
-<!-- BEGIN kwiki_begin.html -->
+
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -99,7 +97,7 @@ __template/tt2/kwiki_begin.html__
       hub.action == 'edit' || 
       hub.action == 'revisions' 
 %]
-  [% hub.cgi.page_id %] -
+  [% hub.cgi.page_name %] -
 [% END %]
 [% IF hub.action != 'display' %]
   [% self.class_title %] - 
@@ -118,12 +116,10 @@ __template/tt2/kwiki_begin.html__
   <link rel="start" href="[% script_name %]" title="Home" />
 </head>
 <body>
-<!-- END kwiki_begin.html -->
 __template/tt2/kwiki_end.html__
-<!-- BEGIN kwiki_end.html -->
 </body>
 </html>
-<!-- END kwiki_end.html -->
+
 __palm90.png__
 iVBORw0KGgoAAAANSUhEUgAAAFoAAABaCAIAAAC3ytZVAAAABmJLR0QA/wD/AP+gvaeTAAAACXBI
 WXMAAAsSAAALEgHS3X78AAAAB3RJTUUH0wUfFicLzVi4twAAGFRJREFUeJztfHmUVNWd//f7vfe9

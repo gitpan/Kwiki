@@ -7,5 +7,6 @@ use IO::All;
 for (io('lib')->All_Files) {
     my $name = $_->name;
     $name =~ s/^lib\/(.*\.pm)$/$1/ or next;
-    ok(eval "require '$name'; 1");
+    eval "require '$name'; 1";
+    is( $@, '', "Compile $name" );
 }

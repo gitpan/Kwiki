@@ -1,7 +1,5 @@
 package Kwiki::Edit;
-use strict;
-use warnings;
-use Kwiki::Plugin '-Base';
+use Kwiki::Plugin -Base;
 use mixin 'Kwiki::Installer';
 
 const class_id => 'edit';
@@ -41,7 +39,7 @@ sub save {
     $page->content($self->cgi->page_content);
     if ($page->modified_time != $self->cgi->page_time) {
         my $page_uri = $page->uri;
-        return $self->redirect("action=edit_contention&page_id=$page_uri");
+        return $self->redirect("action=edit_contention&page_name=$page_uri");
     }
     $page->update->store;
     return $self->redirect($page->uri);
@@ -67,8 +65,6 @@ use base 'Kwiki::CGI';
 cgi 'page_content' => qw(-utf8 -newlines);
 cgi 'revision_id';
 cgi 'page_time';
-
-1;
 
 package Kwiki::Edit;
 
@@ -101,18 +97,13 @@ edit_save_button_text: SAVE
 edit_preview_button_text: PREVIEW
 default_content: Enter your own page content here.
 __template/tt2/edit_button.html__
-<!-- BEGIN edit_button.html -->
 [% rev_id = hub.revisions.revision_id %]
-<a href="[% script_name %]?action=edit&page_id=[% page_uri %][% IF rev_id %]&revision_id=[% rev_id %][% END %]" accesskey="e" title="Edit This Page">
+<a href="[% script_name %]?action=edit&page_name=[% page_uri %][% IF rev_id %]&revision_id=[% rev_id %][% END %]" accesskey="e" title="Edit This Page">
 [% INCLUDE edit_button_icon.html %]
 </a>
-<!-- END edit_button.html -->
 __template/tt2/edit_button_icon.html__
-<!-- BEGIN edit_book_button_icon.html -->
-Edit
-<!-- END edit_book_button_icon.html -->
+ Edit 
 __template/tt2/edit_contention.html__
-<!-- BEGIN edit_contention.html -->
 <div class="error">
 <p>
 While you were editing this page somebody else saved changes to
@@ -125,9 +116,7 @@ your browser's back button to return to the Edit screen and make more
 changes. Always use the Kwiki Edit button to get to the Edit screen.
 </p>
 </div>
-<!-- END edit_contention.html -->
 __template/tt2/edit_content.html__
-<!-- BEGIN edit_content.html -->
 <script language="JavaScript" type="text/JavaScript"><!--
 function clear_default_content(content_box) {
     if (content_box.value == '[% default_content %]') {
@@ -145,10 +134,9 @@ function clear_default_content(content_box) {
 <br />
 <br />
 <input type="hidden" name="action" value="edit" />
-<input type="hidden" name="page_id" value="[% page_uri %]" />
+<input type="hidden" name="page_name" value="[% page_uri %]" />
 <input type="hidden" name="page_time" value="[% page_time %]" />
 <textarea name="page_content" rows="25" cols="80" onfocus="clear_default_content(this)">
 [%- page_content -%]
 </textarea>
 </form>
-<!-- END edit_content.html -->

@@ -1,36 +1,10 @@
 package Kwiki::CSS;
-use strict;
-use warnings;
-use Kwiki::Base '-Base';
+use Kwiki::WebFile -Base;
 
 const class_id => 'css';
-const default_path => [ 'css' ];
-field path => [];
-field files => [];
+const default_path_method => 'css_path';
 
-sub init {
-    $self->add_path(@{$self->default_path});
-}
-
-sub add_file {
-    my $file = shift
-      or return;
-    my $file_path = '';
-    for (@{$self->path}) {
-        $file_path = "$_/$file", last
-          if -f "$_/$file";
-    }
-    return unless $file_path;
-    my $files = $self->files;
-    @$files = grep { not /\/$file$/ } @$files;
-    push @$files, $file_path;
-}
-
-sub add_path {
-    splice @{$self->path}, 0, 0, @_;
-}
-
-1;
+conf css_path => [ 'css' ];
 
 __DATA__
 

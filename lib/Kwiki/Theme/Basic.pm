@@ -1,13 +1,9 @@
 package Kwiki::Theme::Basic;
-use strict;
-use warnings;
-use Kwiki::Theme '-Base';
+use Kwiki::Theme -Base;
 use mixin 'Kwiki::Installer';
 
 const theme_id => 'basic';
 const class_title => 'Basic Theme';
-
-1;
 
 __DATA__
 
@@ -34,8 +30,8 @@ See http://www.perl.com/perl/misc/Artistic.html
 
 =cut
 __theme/basic/template/tt2/kwiki_screen.html__
+
 [%- INCLUDE kwiki_doctype.html %]
-<!-- BEGIN kwiki_screen.html -->
 [% INCLUDE kwiki_begin.html %]
 <table id="group"><tr>
 <td id="group_1">
@@ -85,8 +81,8 @@ __theme/basic/template/tt2/kwiki_screen.html__
 
 </td>
 </tr></table>
-[% INCLUDE kwiki_end.html %]
-<!-- END kwiki_screen.html -->
+[% INCLUDE kwiki_end.html -%]
+
 __theme/basic/css/kwiki.css__
 #logo_pane {
     text-align: center;

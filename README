@@ -39,13 +39,11 @@ CGI::Kwiki
     to Kwiki. It's actually quite easy to do by hand. Instructions on how to
     do it are here: http://www.kwiki.org/?KwikiMigrationByHand
 
-SEE ALSO
-    Kwiki::Command
-
-RELEASE NOTES
-    This is an early release of the Kwiki distribution. I know that the
-    documentation is lacking. Please refer to http://www.kwiki.org for the
-    latest information. Proper documentation will follow soon.
+DOCUMENTATION
+    All of the future Kwiki module documentation is being written at the
+    http://doc.kwiki.org/ wiki. Check there for the latest doc, and help
+    improve it. Each successive release of Kwiki will include the latest doc
+    from that site.
 
 CREDITS
     I am currently employed by Socialtext, Inc. They make high quality
@@ -58,11 +56,14 @@ CREDITS
     The Kwiki project would not be where it is now without their support. I
     thank them.
 
+    Of particular note, Dave Rolsky and Chris Dent are two current
+    Socialtext employees that have made significant contributions to Kwiki.
+
      ---
 
     Iain Truskett was probably the most active Kwiki community hacker before
-    his untimely death in Dec 2003. The underlying foundation of Kwiki has
-    been named "Spoon" in his honor. Rest in peace Spoon.
+    his untimely death in December 2003. The underlying foundation of Kwiki
+    has been named "Spoon" in his honor. Rest in peace Spoon.
 
      ---
 
@@ -74,6 +75,9 @@ CREDITS
 
     Finally, big props to all the folks on http://www.kwiki.org and
     irc://irc.freenode.net/#kwiki. Thanks for all the support!
+
+SEE ALSO
+    Kwiki::Command
 
 AUTHOR
     Brian Ingerson <INGY@cpan.org>

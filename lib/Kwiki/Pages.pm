@@ -1,18 +1,15 @@
 package Kwiki::Pages;
-use strict;
-use warnings;
-use Kwiki::Base '-Base';
+use Kwiki::Base -Base;
 use mixin 'Kwiki::Installer';
 
+const inline_classes => [qw(Kwiki::Page Kwiki::PageMeta)];
 const class_id => 'pages';
 const class_title => 'Kwiki Pages';
 const page_class => 'Kwiki::Page';
 const meta_class => 'Kwiki::PageMeta';
 
-sub init {
-    $self->use_class('cgi');
-    $self->use_class('config');
-}
+field current => 
+      -init => '$self->new_page($self->current_id)';
 
 sub all {
     map {
@@ -22,20 +19,16 @@ sub all {
 
 sub all_ids_newest_first {
     my $path = $self->current->database_directory;
+    # XXX Unix speed hack should be worked around for win32
     map {chomp; $_} `ls -1t $path`;
-}   
+}
 
 sub recent_by_count {
     my ($count) = @_;
     my @page_ids = $self->all_ids_newest_first;
     splice(@page_ids, $count)
       if @page_ids > $count;
-    my @pages;
-    for my $page_id (@page_ids) {
-        my $page = $self->new_page($page_id);
-        push @pages, $page;
-    }   
-    return @pages;
+    map { $self->new_page($_) } @page_ids;
 }
 
 sub all_since {
@@ -49,14 +42,10 @@ sub all_since {
     return @pages_since;
 }
 
-sub current {
-    return $self->{current} = shift if @_;
-    return $self->{current} if defined $self->{current};
-    return $self->{current} = $self->new_page($self->current_id);
-}
-
 sub current_id {
-    my $page_name = $self->cgi->page_id || $self->config->main_page;
+    my $page_name = 
+      $self->hub->cgi->page_name || 
+      $self->hub->config->main_page;
     $self->name_to_id($page_name);
 }
 
@@ -64,16 +53,16 @@ sub name_to_id {
     my $id = $self->uri_escape(shift);
 }
 
+sub name_to_title {
+    (shift);
+}
+
 sub id_to_uri {
     (shift);
 }
 
-sub id_to_name {
-    my $name = $self->uri_unescape(shift);
-}
-
 sub id_to_title {
-    my $title = $self->id_to_name(shift);
+    $self->uri_unescape(shift);
 }
 
 sub new_page {
@@ -86,7 +75,7 @@ sub new_page {
 sub new_from_name {
     my $page_name = shift;
     my $page = $self->new_page($self->name_to_id($page_name));
-    $page->name($page_name);
+    $page->title($self->name_to_title($page_name));
     return $page;
 }
 
@@ -95,33 +84,21 @@ sub new_metadata {
     $self->meta_class->new(hub => $self->hub, id => $page_id);
 }
 
-sub kwiki_link {
-    $self->new_page(shift)->kwiki_link;
-}
-
 package Kwiki::Page;
 use Kwiki::ContentObject qw(-base !io);
 use Kwiki ':char_classes';
-our @EXPORT = '!io';
 
 field class_id => 'page';
+field title => 
+      -init => '$self->hub->pages->id_to_title($self->id)';
+field uri =>
+      -init => '$self->hub->pages->id_to_uri($self->id)';
 
-sub name {
-    return $self->{name} = shift if @_;
-    return $self->{name} if defined $self->{name};
-    return $self->{name} = $self->hub->pages->id_to_name($self->id);
-}
-
-sub uri {
-    return $self->{uri} = shift if @_;
-    return $self->{uri} if defined $self->{uri};
-    return $self->{uri} = $self->hub->pages->id_to_uri($self->id);
-}
-
-sub title {
-    return $self->{title} = shift if @_;
-    return $self->{title} if defined $self->{title};
-    return $self->{title} = $self->hub->pages->id_to_title($self->id);
+sub all {
+    return (
+        page_uri => $self->uri,
+        page_title => $self->title,
+    );
 }
 
 sub database_directory {
@@ -131,7 +108,6 @@ sub database_directory {
 sub content {
     return $self->{content} = shift if @_;
     return $self->{content} if defined $self->{content};
-    $self->call_hooks('content');
     $self->load_content;
     return $self->{content};
 }
@@ -141,7 +117,6 @@ sub metadata {
     $self->{metadata} ||= 
       $self->meta_class->new(hub => $self->hub, id => $self->id);
     return $self->{metadata} if $self->{metadata}->loaded;
-    $self->call_hooks('metadata');
     $self->load_metadata;
     return $self->{metadata};
 }
@@ -151,15 +126,10 @@ sub update {
     return $self;
 }
 
-sub store {
-    super or return;
-    $self->call_hooks('store');
-}
-
 sub kwiki_link {
     my ($label) = @_;
     my $page_uri = $self->uri;
-    $label = $self->name
+    $label = $self->title
       unless defined $label;
     my $script = $self->hub->config->script_name;
     my $class = $self->active
@@ -171,7 +141,8 @@ sub edit_by_link {
     my $user_name = $self->metadata->edit_by || 'UnknownUser';
     $user_name = $self->hub->config->user_default_name
       if $user_name =~ /[^$ALPHANUM]/;
-    $self->hub->pages->kwiki_link($user_name);
+    my $page = $self->hub->pages->new_page($user_name);
+    $page->kwiki_link;
 }
 
 sub edit_time {
@@ -190,6 +161,7 @@ sub format_time {
     return $formatted;
 }
 
+#XXX This is a bad idea
 sub io {
     Kwiki::io($self->database_directory . '/' . $self->id)->file;
 }
@@ -214,14 +186,6 @@ sub age_in_seconds {
     return $self->{age_in_seconds} = int((-M "$path/$page_id") * 86400);
 }
 
-sub all {
-    return (
-        page_id => $self->id,
-        page_uri => $self->uri,
-        page_name => $self->name,
-    );
-}
-
 sub to_html {
     my $content = @_ ? shift : $self->content; 
     $self->hub->load_class('formatter');
@@ -241,10 +205,8 @@ sub revision_numbers {
 }
 
 package Kwiki::PageMeta;
-use strict;
-use warnings;
-use Spoon::MetadataObject '-base';
-use Kwiki::Plugin '-base';
+use Spoon::MetadataObject -base;
+use Kwiki::Plugin -base;
 
 const class_id => 'page_metadata';
 field loaded => 0;
@@ -252,9 +214,10 @@ field loaded => 0;
 field edit_by => '';
 field edit_time => '';
 field edit_unixtime => '';
+field edit_address => '';
 
 sub sort_order {
-    qw(edit_by edit_time edit_unixtime)
+    qw(edit_by edit_time edit_unixtime edit_address)
 }
 
 sub file_path {
@@ -275,6 +238,14 @@ sub update {
     my $unixtime = time;
     $self->edit_time(scalar gmtime($unixtime));
     $self->edit_unixtime($unixtime);
+    $self->edit_address($self->get_edit_address);
+    return $self;
+}
+
+sub get_edit_address {
+    $ENV{HTTP_X_FORWARDED_FOR} ||
+    $ENV{REMOTE_ADDR} ||
+    '';
 }
 
 sub store {
@@ -285,7 +256,6 @@ sub store {
 
 package Kwiki::Pages;
 
-1;
 __DATA__
 
 =head1 NAME

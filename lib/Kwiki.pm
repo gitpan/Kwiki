@@ -1,30 +1,25 @@
 package Kwiki;
-use strict;
-use warnings;
-use Spoon 0.18 '-Base';
-our $VERSION = '0.33';
+use Spoon 0.19 -Base;
+our $VERSION = '0.34';
 
 const config_class => 'Kwiki::Config';
 
 sub process {
     my $hub = $self->load_hub(@_);
+    $hub->load_class('headers');
     my $html = $hub->process;
     if (defined $html) {
-        if (ref $html) {
-            print CGI::redirect($html->{redirect});
-        } 
-        else {
-            my $header = $hub->load_class('cookie')->header;
-            $self->utf8_encode($header);
-            $self->utf8_encode($html);
-            print $header, $html;
-        }
+        $hub->headers->print;
+        $self->utf8_encode($html);
+        # With mod_perl < 1.27 and Perl >= 5.8.0, STDOUT does not get
+        # tied to Apache.pm properly.
+        exists $ENV{MOD_PERL}
+          ? Apache->request->print($html)
+          : print $html;
     }
     close STDOUT unless $self->using_debug;
     $hub->post_process;
 }
-
-1;
 
 __DATA__
 
@@ -74,15 +69,12 @@ There is currently no automated way to upgrade a CGI::Kwiki installation
 to Kwiki. It's actually quite easy to do by hand. Instructions on how to
 do it are here: http://www.kwiki.org/?KwikiMigrationByHand
 
-=head1 SEE ALSO
+=head1 DOCUMENTATION
 
-Kwiki::Command
-
-=head1 RELEASE NOTES
-
-This is an early release of the Kwiki distribution. I know that the
-documentation is lacking. Please refer to http://www.kwiki.org for the
-latest information. Proper documentation will follow soon.
+All of the future Kwiki module documentation is being written at
+the http://doc.kwiki.org/ wiki. Check there for the latest doc, and
+help improve it. Each successive release of Kwiki will include the
+latest doc from that site.
 
 =head1 CREDITS
 
@@ -91,16 +83,19 @@ social software for enterprise deployment. Socialtext has a bold new
 vision of building their products over Open Source software and
 returning the generic source code to the community. This results in a
 win/win effect for both entities. You get this shiny new wiki framework,
-and Socialtext can take advantage of your plugins and bug fixes.
+and Socialtext can take advantage of your plugins and bug fixes. 
 
 The Kwiki project would not be where it is now without their support. I
 thank them.
 
+Of particular note, Dave Rolsky and Chris Dent are two current
+Socialtext employees that have made significant contributions to Kwiki.
+
  ---
 
 Iain Truskett was probably the most active Kwiki community hacker before
-his untimely death in Dec 2003. The underlying foundation of Kwiki has
-been named "Spoon" in his honor. Rest in peace Spoon.
+his untimely death in December 2003. The underlying foundation of Kwiki
+has been named "Spoon" in his honor. Rest in peace Spoon.
 
  ---
 
@@ -112,6 +107,10 @@ plugins to come from him! Thanks Ian.
 
 Finally, big props to all the folks on http://www.kwiki.org and
 irc://irc.freenode.net/#kwiki. Thanks for all the support!
+
+=head1 SEE ALSO
+
+Kwiki::Command
 
 =head1 AUTHOR
 

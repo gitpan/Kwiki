@@ -1,14 +1,11 @@
 package Kwiki::Preferences;
-use strict;
-use warnings;
-use Kwiki::Base '-Base';
+use Kwiki::Base -Base;
 
 field class_id => 'preferences';
 const preference_class => 'Kwiki::Preference';
 field objects_by_class => {};
 
 sub load {
-    return unless $self->is_in_cgi;
     my $values = shift;
     my $prefs = $self->hub->registry->lookup->preference;
     for (sort keys %$prefs) {
@@ -16,14 +13,15 @@ sub load {
         my $class_id = $array->[0];
         my $hash = {@{$array}[1..$#{$array}]}
           or next;
-        my $object = $hash->{object}
-          or next;
+        next unless $hash->{object};
+        my $object = $hash->{object}->clone;
         $object->value($values->{$_});
         $object->hub($self->hub);
         push @{$self->objects_by_class->{$class_id}}, $object;
         field($_);
         $self->$_($object);
     }
+    return $self;
 }
 
 sub new_preferences {
@@ -42,7 +40,6 @@ sub new_preference {
 package Kwiki::Preference;
 use Kwiki::Base '-base';
 
-field 'hub';
 field 'id';
 field 'name';
 field 'description';
@@ -99,7 +96,7 @@ sub input {
     my $value = $self->value;
     my $size = $self->size;
     return <<END
-<input type="input" name="$name" value="$value" size="$size" />
+<input type="text" name="$name" value="$value" size="$size" />
 END
 }
 
@@ -145,8 +142,6 @@ sub pulldown {
         -override => 1,
     );
 }
-
-1;
 
 __DATA__
 

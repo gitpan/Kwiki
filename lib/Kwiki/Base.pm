@@ -1,11 +1,7 @@
 package Kwiki::Base;
-use strict;
-use warnings;
-use Spoon::Base '-Base';
+use Spoon::Base -Base;
 
 field 'id';
-
-1;
 
 __END__
 

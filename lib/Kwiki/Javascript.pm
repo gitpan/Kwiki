@@ -1,12 +1,10 @@
 package Kwiki::Javascript;
-use strict;
-use warnings;
-use Kwiki::CSS '-Base';
+use Kwiki::WebFile -Base;
 
 const class_id => 'javascript';
-const default_path => [ 'javascript' ];
+const default_path_method => 'javascript_path';
 
-1;
+conf javascript_path => [ 'javascript' ];
 
 __DATA__
 
