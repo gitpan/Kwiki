@@ -53,13 +53,13 @@ sub set_user_name {
 sub preferences {
     return $self->{preferences} = shift if @_;
     return $self->{preferences} if defined $self->{preferences};
-    my $preferences = $self->hub->load_class('preferences');
+    my $preferences = $self->hub->preferences;
     $self->{preferences} =
       $preferences->new_preferences($self->preference_values);
 }
 
 sub preference_values { 
-    $self->hub->load_class('cookie')->jar->{preferences} || {};
+    $self->hub->cookie->jar->{preferences} || {};
 }
 
 package Kwiki::Users;

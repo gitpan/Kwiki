@@ -28,7 +28,10 @@ sub html {
               $_->{template},
               @all,
               $_->{params_class}
-                ? $self->hub->load_class($_->{params_class})->$params_method
+                ? do {
+                    my $class_id = $_->{params_class};
+                    $self->hub->$class_id->$params_method
+                }
                 : ()
           )
           : undef

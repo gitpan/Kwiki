@@ -16,8 +16,7 @@ const all_phrases => [qw(
 const css_file => 'formatter.css';
 
 sub init {
-    $self->hub->load_class('pages');
-    $self->hub->load_class('css')->add_file($self->css_file);
+    $self->hub->css->add_file($self->css_file);
 }
 
 sub formatter_classes {             

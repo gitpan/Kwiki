@@ -8,12 +8,9 @@ sub register {
     $register->add(preload => 'theme',
                    priority => 1,
                   );
-}
-
-sub load_pane_classes {
-    $self->load_class('toolbar');
-    $self->load_class('widgets');
-    $self->load_class('status');
+    $register->add(prerequisite => 'toolbar');
+    $register->add(prerequisite => 'widgets');
+    $register->add(prerequisite => 'status');
 }
 
 const default_template_path => "theme/%s/template/tt2";
@@ -46,7 +43,7 @@ sub init {
       (ref $self->default_javascript_file
           ? @{$self->default_javascript_file}
           : $self->default_javascript_file);
-    $self->hub->load_class('cookie'); 
+    $self->hub->cookie; 
 }
 
 __DATA__

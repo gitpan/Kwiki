@@ -9,7 +9,7 @@ BEGIN {
         plan skip_all => 'These tests require Test::Memory::Cycle';
     }
     else {
-        plan tests => 37;
+        plan tests => 35;
     }
 }
 use Kwiki;
@@ -47,7 +47,6 @@ use Kwiki;
                    archive_class => 'Kwiki::Archive',
                    display_class => 'Kwiki::Display',
                    edit_class => 'Kwiki::Edit',
-                   htaccess_class => 'Kwiki::Htaccess',
 # XXX Figure out why this fails...
 #                    icons_class => 'Kwiki::Icons',
                    pane_class => 'Kwiki::Pane',
@@ -60,7 +59,7 @@ use Kwiki;
 
     foreach my $key (sort keys %classes) {
         (my $id = $key) =~ s/_class$//;
-        my $object = $hub->load_class($id);
+        my $object = $hub->$id;
 
         memory_cycle_ok($hub, 'check for cycles in Kwiki::Hub object');
         memory_cycle_ok($object, "check for cycles in $classes{$key} object");

@@ -4,12 +4,14 @@ use warnings;
 use TestChunks;
 use Kwiki;
 
-my $hub =
-    Kwiki->new->debug->load_hub({css_class => 'Kwiki::CSS',
-                                 formatter_class => 'Kwiki::Formatter',
-                                });
+my $hub = Kwiki->new->debug->load_hub(
+    {
+        css_class => 'Kwiki::CSS',
+        formatter_class => 'Kwiki::Formatter',
+    }
+);
 
-my $formatter = $hub->load_class('formatter');
+my $formatter = $hub->formatter;
 
 for my $test ((test_chunks(qw(%%% <<<)))) {
     my $wiki_text = $test->chunk('%%%');

@@ -6,12 +6,14 @@ use Kwiki;
 
 no warnings 'once';
 
-my $hub =
-    Kwiki->new->debug->load_hub({css_class => 'Kwiki::CSS',
-                                 formatter_class => 'Kwiki::Formatter',
-                                });
+my $hub = Kwiki->new->debug->load_hub(
+    {
+        css_class => 'Kwiki::CSS',
+        formatter_class => 'Kwiki::Formatter',
+    }
+);
 
-my $formatter = $hub->load_class('formatter');
+my $formatter = $hub->formatter;
 
 my $x = 0;
 for my $test ( test_chunks( '%%%', '<<<' ) )

@@ -1,12 +1,12 @@
 #!/usr/bin/perl -w
 use strict;
 use warnings;
-our $VERSION = '0.36';
+our $VERSION = '0.37';
 
 use lib 'lib';
 use Kwiki;
 my @configs = qw(config.yaml -plugins plugins);
-Kwiki->new->load_hub(@configs)->load_class('command')->process(@ARGV);
+Kwiki->new->load_hub(@configs)->command->process(@ARGV);
 
 __END__
 

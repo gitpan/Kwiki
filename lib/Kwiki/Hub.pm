@@ -2,7 +2,7 @@ package Kwiki::Hub;
 use Spoon::Hub -Base;
 
 sub action {
-    $self->load_class('cgi')->action || 'display';
+    $self->cgi->action || 'display';
 }
 
 __DATA__

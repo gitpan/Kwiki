@@ -33,7 +33,7 @@ __index.cgi__
 #!/usr/bin/perl
 use lib 'lib';
 use Kwiki;
-Kwiki->new->debug->process('config.yaml', -plugins => 'plugins');
+Kwiki->new->debug->process('config*.*', -plugins => 'plugins');
 __README__
 A Kwiki Welcome
 ===============
@@ -103,9 +103,11 @@ __template/tt2/kwiki_begin.html__
   [% self.class_title %] - 
 [% END %]
   [% site_title %]</title>
-[% FOR link = hub.links.all -%]
+[%# FOR link = hub.links.all -%]
+<!-- XXX Kwiki::Atom might need this, but it breaks Hub::AUTOLOAD
   <link rel="[% link.rel %]" type="[% link.type %]" href="[% link.href %]" />
-[% END %]
+-->
+[%# END %]
 [% FOR css_file = hub.css.files -%]
   <link rel="stylesheet" type="text/css" href="[% css_file %]" />
 [% END -%]

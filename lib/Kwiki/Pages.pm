@@ -12,7 +12,9 @@ field current =>
       -init => '$self->new_page($self->current_id)';
 
 sub all {
-    map {
+    grep {
+        $_->is_readable
+    } map {
         $self->new_page($_->filename)
     } io($self->current->database_directory)->all_files;
 }
@@ -37,6 +39,7 @@ sub all_since {
     for my $page_id ($self->all_ids_newest_first) {
         my $page = $self->new_page($page_id);
         last if $page->age_in_minutes > $minutes;
+        next unless $page->is_readable;
         push @pages_since, $page;
     }   
     return @pages_since;
@@ -131,6 +134,7 @@ sub kwiki_link {
     my $page_uri = $self->uri;
     $label = $self->title
       unless defined $label;
+    return $label unless $self->is_readable;
     my $script = $self->hub->config->script_name;
     my $class = $self->active
       ? '' : ' class="empty"';
@@ -161,9 +165,10 @@ sub format_time {
     return $formatted;
 }
 
-#XXX This is a bad idea
+#XXX This is a bad idea. io is the IO::All constructor. Making it into a
+# method is problematic
 sub io {
-    Kwiki::io($self->database_directory . '/' . $self->id)->file;
+    Kwiki::io($self->file_path)->file;
 }
 
 sub modified_time {
@@ -188,20 +193,19 @@ sub age_in_seconds {
 
 sub to_html {
     my $content = @_ ? shift : $self->content; 
-    $self->hub->load_class('formatter');
     $self->hub->formatter->text_to_html($content);
 }
 
 sub history {
-    $self->hub->load_class('archive')->history($self);
+    $self->hub->archive->history($self);
 }
 
 sub revision_number {
-    $self->hub->load_class('archive')->revision_number($self);
+    $self->hub->archive->revision_number($self);
 }
 
 sub revision_numbers {
-    $self->hub->load_class('archive')->revision_numbers($self, @_);
+    $self->hub->archive->revision_numbers($self, @_);
 }
 
 package Kwiki::PageMeta;

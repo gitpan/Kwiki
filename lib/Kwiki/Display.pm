@@ -32,7 +32,14 @@ sub display {
     my $screen_title = $self->hub->have_plugin('search')
     ? "<a href=\"$script?action=search&search_term=$page_uri\">$page_title</a>"
     : $page_title;
-    $page->content;
+    eval {
+        $page->content;
+    };
+    if ($@) {
+        my $main_page = $self->config->main_page;
+        die $@ if $page->title eq $main_page;
+        return $self->redirect($main_page);
+    }
     $self->render_screen(
         screen_title => $screen_title,
         page_html => $page->to_html,
@@ -63,9 +70,6 @@ under the same terms as Perl itself.
 See http://www.perl.com/perl/misc/Artistic.html
 
 =cut
-__config/display.yaml__
-cache_pages:
-- HomePage
 __template/tt2/home_button.html__
 <a href="[% script_name %]?[% main_page %]" accesskey="h" title="Home Page">
 [% INCLUDE home_button_icon.html %]

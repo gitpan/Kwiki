@@ -1,4 +1,17 @@
 ---
+version: 0.37
+date:    Tue Jan 11 07:45:24 PST 2005
+changes:
+- Remove load_class calls per Spoon 0.21
+- Move archive commit hook into super class
+- Split Kwiki::COmmand into Spoon::Command
+- Make kwiki -compress work again :\
+- Change -subwiki to -new_view
+- List all plugins commented out in plugins file
+- Support PagePrivacy
+- Support multiple config*.*
+- Make toolbar, widgets, and status prereqs of theme
+---
 version: 0.36
 date:    Sat Dec 18 00:52:03 PST 2004
 changes:
@@ -18,7 +31,8 @@ changes:
 ---
 version: 0.34
 date:    Wed Dec 15 13:55:58 PST 2004
-- Kwiki is now memory cycle free, which makes it much more suitable for use under mod_perl
+- Kwiki is now memory cycle free, which makes it much more suitable for use
+  under mod_perl (Dave Rolsky)
 - Added Pane superclass for Toolbar Widgets and Status
 - Added BrowserDetect module
 - Removed Htaccess module

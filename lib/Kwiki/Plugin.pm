@@ -7,6 +7,7 @@ const config_file => '';
 const css_file => '';
 const javascript_file => '';
 const screen_template => 'kwiki_screen.html';
+const class_title_prefix => 'Kwiki';
 
 sub new {
     return $self if ref $self;
@@ -22,19 +23,12 @@ sub init {
     $self->use_class('pages');
     $self->use_class('template');
     $self->config->add_file($self->config_file);
-    $self->hub->load_class('css')->add_file($self->css_file);
-    $self->hub->load_class('javascript')->add_file($self->javascript_file);
+    $self->hub->css->add_file($self->css_file);
+    $self->hub->javascript->add_file($self->javascript_file);
 }
 
 sub preferences {
     $self->users->current->preferences;
-}
-
-sub class_title {
-    'Kwiki ' . join ' ', map {
-        s/(.*)/\u$1/;
-        $_;
-    } split '_', $self->class_id;
 }
 
 sub render_screen {
@@ -70,7 +64,7 @@ sub redirect_url {
 }
 
 sub new_preference {
-    $self->hub->load_class('preferences')->new_preference(scalar(caller), @_);
+    $self->hub->preferences->new_preference(scalar(caller), @_);
 }
 
 __DATA__

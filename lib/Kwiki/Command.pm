@@ -1,51 +1,14 @@
 package Kwiki::Command;
-use Kwiki::Base -Base;
+use Spoon::Command -Base;
 
-field quiet => 0;
-
-sub init {
-    $self->use_class('config');
-}
-
-sub boolean_arguments { 
-    qw(
-        -new -update -update_all
-        -add -remove -install 
-        -subwiki -compress
-        -q -quiet
-    ) 
-}
-
-sub process {
-    my ($args, @values) = $self->parse_arguments(@_);
-    $self->quiet(1)
-      if $args->{-q} || $args->{-quiet};
-    return $self->new_kwiki(@values)
-      if $args->{-new};
-    return $self->update_kwiki(@values)
-      if $args->{-update};
-    return $self->update_all_kwikis(@values)
-      if $args->{-update_all};
-    return $self->update_plugins('+', @values)
-      if $args->{-add};
-    return $self->update_plugins('-', @values)
-      if $args->{-remove};
-    return $self->install_plugins(@values)
-      if $args->{-install};
-    return $self->create_subwiki(@values)
-      if $args->{-subwiki};
-    return $self->compress_kwiki(@values)
-      if $args->{-compress};
-    return $self->usage;
-}
-
-sub new_kwiki {
+sub handle_new {
     $self->assert_directory(shift, 'Kwiki');
     $self->add_new_default_config;
     $self->install('files');
     $self->install('config');
     $self->create_registry;
-    $self->hub->load_registry;
+    $self->hub->registry->load;
+    # XXX a method should return this list of plugin class_ids
     $self->install('display');
     $self->install('edit');
     $self->install('formatter');
@@ -60,8 +23,8 @@ sub new_kwiki {
     warn "\nKwiki software installed! Point your browser at this location.\n\n";
 }
 
-sub create_subwiki {
-    $self->assert_directory(shift, 'subwiki');
+sub handle_new_view {
+    $self->assert_directory(shift, 'kwiki view');
     die "Parent directory does not look like a Kwiki installation"
       unless -e '../plugins';
     require Cwd;
@@ -75,16 +38,16 @@ sub create_subwiki {
         next if $name eq $home;
         io->link($name)->symlink($file->name);
     }
-    $self->create_subwiki_plugins;
-    $self->update_kwiki;
+    $self->create_new_view_plugins;
+    $self->handle_update;
     print <<END;
 
-Subwiki created. Now edit the $home/plugins file and run 
+New view created. Now edit the $home/plugins file and run 
 'kwiki -update' in the '$home' subdirectory.
 END
 }
 
-sub create_subwiki_plugins {
+sub create_new_view_plugins {
     io('plugins')->print(<<END);
 # You can either list all the plugins you want manually, or put '+' and '-' in
 # front of the plugins you want to add/remove from ../plugins respectively.
@@ -120,7 +83,7 @@ sub add_new_default_config {
 
 sub install {
     my $class_id = shift;
-    my $object = $self->hub->load_class($class_id)
+    my $object = $self->hub->$class_id
       or return;
     return unless $object->can('extract_files');
     my $class_title = $self->hub->$class_id->class_title;
@@ -130,26 +93,22 @@ sub install {
     $self->msg("\n");
 }
 
-sub msg {
-    warn @_ unless $self->quiet;
-}
-
 sub is_kwiki_dir {
     my $dir = shift || '.';
     -d "$dir/plugin" and -f "$dir/registry.dd";
 }
 
-sub update_kwiki {
+sub handle_update {
     chdir io->dir(shift || '.')->assert->open . '';
     die "Can't update non Kwiki directory!\n"
       unless -d 'plugin';
     $self->create_registry;
-    $self->hub->load_registry;
+    $self->hub->registry->load;
     $self->install($_) for $self->all_class_ids;
     $self->set_permissions;
 }
 
-sub update_all_kwikis {
+sub handle_update_all {
     my @dirs = (io->curdir, io->curdir->All_Dirs);
     while (my $dir = shift @dirs) {
         next unless $self->is_kwiki_dir($dir);
@@ -161,11 +120,11 @@ sub update_all_kwikis {
 
 sub all_class_ids {
     my @all_modules;
-    for my $key (keys %{$self->config}) {
-        push @all_modules, $self->config->{$key}
+    for my $key (keys %{$self->hub->config}) {
+        push @all_modules, $self->hub->config->{$key}
           if $key =~ /_class/;
     }
-    push @all_modules, @{$self->config->{plugin_classes} || []};
+    push @all_modules, @{$self->hub->config->{plugin_classes} || []};
     map {
         eval "require $_; 1"
         ? $_->can('extract_files')
@@ -179,12 +138,20 @@ sub all_class_ids {
     } @all_modules;
 }
 
+sub handle_add {
+    $self->update_plugins('+', @_);
+}
+
+sub handle_remove {
+    $self->update_plugins('-', @_);
+}
+
 sub update_plugins {
     die "This operation must be performed inside a Kwiki installation directory"
-      unless -f $self->config->plugins_file;
+      unless -f $self->hub->config->plugins_file;
     my $mode = shift;
     return $self->usage unless @_;
-    my $plugins_file = $self->config->plugins_file;
+    my $plugins_file = $self->hub->config->plugins_file;
     my $plugins = io($plugins_file);
     my @lines = $plugins->chomp->slurp;
     for my $module (@_) {
@@ -200,13 +167,13 @@ sub update_plugins {
     }
     $plugins->println($_) for @lines;
     $plugins->close;
-    $self->config->add_plugins_file($plugins_file);
-    $self->update_kwiki;
+    $self->hub->config->add_plugins_file($plugins_file);
+    $self->handle_update;
 }
 
-sub install_plugins {
+sub handle_install {
     die "This operation must be performed inside a Kwiki installation directory"
-      unless -f $self->config->plugins_file;
+      unless -f $self->hub->config->plugins_file;
     return $self->usage unless @_;
     require Cwd;
     $self->cpan_setup;
@@ -250,8 +217,9 @@ sub fake_install {
       unless -f $file->name;
 }
 
-sub compress_kwiki {
+sub handle_compress {
     require Spoon::Installer;
+    field hub => -package => 'Spoon::Installer';
     Spoon::Installer->new(hub => $self->hub)->compress_lib(@_);
 }
 
@@ -265,7 +233,7 @@ sub set_permissions {
 
 sub create_registry {
     my $hub = Kwiki->new->load_hub('config.yaml', -plugins => 'plugins');
-    my $registry = $hub->load_class('registry');
+    my $registry = $hub->registry;
     my $registry_path = $registry->registry_path;
     $self->msg("Generating Kwiki Registry '$registry_path'\n");
     $registry->update;
@@ -282,7 +250,7 @@ usage:
   kwiki -add Kwiki::Foo       # Add a plugin
   kwiki -remove Kwiki::Foo    # Remove a plugin
   kwiki -install Kwiki::Foo   # Download and install a plugin
-  kwiki -subwiki [subdir]     # Create a subwiki under an existing Kwiki
+  kwiki -new_view [subdir]    # Create a new view under an existing Kwiki
   kwiki -update_all           # Update all Kwiki dirs under current dir
 END
 }
@@ -301,7 +269,7 @@ Kwiki::Command - Kwiki Command Line Tool Module
     > vim config.yaml
     > kwiki -update
     > kwiki -remove RecentChanges
-    > kwiki -subwiki admin
+    > kwiki -new_view admin
 
 =head1 DESCRIPTION
 

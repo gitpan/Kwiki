@@ -1,12 +1,12 @@
 package Kwiki;
-use Spoon 0.19 -Base;
-our $VERSION = '0.36';
+use Spoon 0.21 -Base;
+our $VERSION = '0.37';
 
 const config_class => 'Kwiki::Config';
 
 sub process {
     my $hub = $self->load_hub(@_);
-    $hub->load_class('headers');
+    $hub->pre_process;
     my $html = $hub->process;
     if (defined $html) {
         $hub->headers->print;

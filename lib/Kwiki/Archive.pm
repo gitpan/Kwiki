@@ -29,6 +29,14 @@ sub generate {
     chmod 0777, $dir;
 }
 
+sub commit_hook {
+    my $hook = pop;
+    return unless $hook->returned_true;
+    my $page = $self;
+    $self = $page->hub->archive;
+    $self->commit($page);
+}
+
 sub commit_all {
     for my $page ($self->pages->all) {
         $self->commit($page);

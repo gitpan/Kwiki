@@ -11,7 +11,7 @@ sub class_title {
 
 sub register {
     my $registry = shift;
-    $registry->add('preload', 'icons');
+    $registry->add(preload => 'icons');
     $registry->add(preference => $self->use_icons);
 }
 

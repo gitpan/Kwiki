@@ -16,7 +16,7 @@ use Kwiki;
 {
     my $kwiki = Kwiki->new;
     my $hub = $kwiki->load_hub({formatter_class => 'Kwiki::Formatter'});
-    my $formatter = $hub->load_class('formatter');
+    my $formatter = $hub->formatter;
 
     $formatter->text_to_html(text());
 
@@ -27,7 +27,7 @@ use Kwiki;
     my $kwiki = Kwiki->new;
     my $hub = $kwiki->load_hub({formatter_class => 'Kwiki::Formatter'});
     my $formatter_top =
-        $hub->load_class('formatter')->top_class->new(hub => $hub, text => text());
+        $hub->formatter->top_class->new(hub => $hub, text => text());
 
     $formatter_top->to_html;
 
