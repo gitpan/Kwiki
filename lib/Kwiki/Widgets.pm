@@ -5,7 +5,6 @@ use Kwiki::Plugin '-Base';
 use mixin 'Kwiki::Installer';
 
 const class_id => 'widgets';
-const class_title => 'Kwiki Widgets';
 const widgets_template => 'widgets_pane.html';
 
 sub register {
@@ -32,7 +31,9 @@ sub html {
     } map {
         $self->show($_)
         ? defined($_->{template})
-          ? $self->template->process($_->{template})
+          ? $self->template->process($_->{template}, 
+              $self->hub->pages->current->all,
+          )
           : undef
         : undef
     } map {

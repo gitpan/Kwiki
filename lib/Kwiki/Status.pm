@@ -5,7 +5,6 @@ use Kwiki::Plugin '-Base';
 use mixin 'Kwiki::Installer';
 
 const class_id => 'status';
-const class_title => 'Kwiki Status';
 const status_template => 'status_pane.html';
 
 sub register {

@@ -1,4 +1,10 @@
 ---
+version: 0.33
+date:    Sun Aug  8 23:12:30 PDT 2004
+changes:
+- Archive API supports svk
+- Full unicode support
+---
 version: 0.32
 date:    Tue Jul 20 03:01:51 PDT 2004
 changes:

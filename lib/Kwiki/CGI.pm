@@ -22,12 +22,12 @@ sub page_id {
         if ($query_string =~ /^keywords=/) {
             $page_id = join ' ', grep $_, split /;?keywords=/, $query_string;
         }
-        elsif ($ENV{QUERY_STRING} =~ /[^=&]+&/) {
+        elsif ($ENV{QUERY_STRING} and $ENV{QUERY_STRING} =~ /[^=&]+&/) {
             ($page_id = $ENV{QUERY_STRING}) =~ s/(.*?)\&.*/$1/;
         }
     }
-    $self->utf8_decode($page_id);
-    $page_id = '' if $page_id =~ /[^$ALPHANUM]/;
+    $page_id = $self->uri_unescape($page_id);
+    $page_id = '' if $page_id and $page_id =~ /[^$ALPHANUM]/;
     $page_id ||= $self->hub->config->main_page;
     $self->{page_id} = $page_id;
 }

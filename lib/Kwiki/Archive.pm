@@ -1,9 +1,56 @@
 package Kwiki::Archive;
 use strict;
 use warnings;
-use Kwiki::Plugin '-base';
+use Kwiki::Plugin '-Base';
 
 const class_id => 'archive';
+const class_title => 'Page Archive';
+
+field 'user_name';
+
+sub register {
+    my $registry = shift;
+    $registry->add(page_hook_store => 'commit');
+}
+
+sub init {
+    $self->use_class('pages');
+    if ($self->empty) {
+        $self->generate;
+        $self->user_name('kwiki-install');
+        $self->commit_all;
+    };
+}
+
+sub empty {
+    io($self->plugin_directory)->empty;
+}
+
+sub generate {
+    my $dir = $self->plugin_directory;
+    umask 0000;
+    chmod 0777, $dir;
+}
+
+sub commit_all {
+    for my $page ($self->pages->all) {
+        $self->commit($page);
+    }
+}
+
+sub page_properties {
+    my $page = shift;
+    return {
+        edit_by => $self->user_name || $page->metadata->edit_by,
+        edit_time => $page->metadata->edit_time || scalar(gmtime),
+        edit_unixtime => $page->metadata->edit_unixtime || scalar(time)
+    };
+}
+
+sub revision_number {
+    $self->history(shift)->[0]->{revision_id} || 0;    
+}
+
 
 1;
 

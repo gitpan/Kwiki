@@ -12,16 +12,27 @@ sub register {
                   );
 }
 
+const default_template_path => "theme/%s/template/tt2";
+const default_css_path => "theme/%s/css";
+const default_javascript_path => "theme/%s/javascript";
+const default_css_file => 'kwiki.css';
+
 sub init {
     super;
     my $theme_id = $self->theme_id;
-    $self->template->add_path("theme/$theme_id/template/tt2")
-      if -d "theme/$theme_id/template/tt2";
-    $self->hub->css->add_path("theme/$theme_id/css")
-      if -d "theme/$theme_id/css";
-    $self->hub->javascript->add_path("theme/$theme_id/javascript")
-      if -d "theme/$theme_id/javascript";
-    $self->hub->css->add_file('kwiki.css');
+    my $template_path = 
+      sprintf $self->default_template_path, $theme_id;
+    $self->template->add_path($template_path)
+      if -e $template_path;
+    my $css_path = 
+      sprintf $self->default_css_path, $theme_id;
+    $self->hub->css->add_path($css_path)
+      if -e $css_path;
+    my $javascript_path = 
+      sprintf $self->default_javascript_path, $theme_id;
+    $self->hub->javascript->add_path($javascript_path)
+      if -e $javascript_path;
+    $self->hub->css->add_file($self->default_css_file);
     $self->hub->load_class('cookie');
 }
 

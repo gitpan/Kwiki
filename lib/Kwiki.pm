@@ -1,8 +1,8 @@
 package Kwiki;
 use strict;
 use warnings;
-use Spoon 0.17 '-Base';
-our $VERSION = '0.32';
+use Spoon 0.18 '-Base';
+our $VERSION = '0.33';
 
 const config_class => 'Kwiki::Config';
 

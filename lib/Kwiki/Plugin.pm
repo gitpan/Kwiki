@@ -8,9 +8,8 @@ const cgi_class => '';
 const config_file => '';
 const css_file => '';
 const javascript_file => '';
-const screen_template => '';
 field 'preferences';
-field 'page';
+const screen_template => 'kwiki_screen.html';
 
 sub new {
     return $self if ref $self;
@@ -31,9 +30,15 @@ sub init {
     $self->hub->load_class('javascript')->add_file($self->javascript_file);
 }
 
+sub class_title {
+    'Kwiki ' . join ' ', map {
+        s/(.*)/\u$1/;
+        $_;
+    } split '_', $self->class_id;
+}
+
 sub render_screen {
-    my $template = $self->screen_template || 'kwiki_screen.html';
-    $self->template_process($template, 
+    $self->template_process($self->screen_template, 
         content_pane => $self->class_id . '_content.html',
         @_,
     );
@@ -45,6 +50,7 @@ sub template_process {
     my $template = shift;
     $self->template->process($template, 
         self => $self,
+        $self->pages->current->all,
         $self->cgi->all, 
         @_,
     );

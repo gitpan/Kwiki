@@ -314,9 +314,9 @@ const pattern_start => qr/\[([$WORD]+)\]/;
 sub html {
     $self->matched =~ $self->pattern_start;
     my $target = $1;
-    my $script = $self->hub->config->script_name || 'index.cgi';
+    my $script = $self->hub->config->script_name;
     my $text = $self->escape_html( $target );
-    my $class = $self->hub->pages->new_page($target)->exists
+    my $class = $self->hub->pages->new_from_name($target)->exists
       ? '' : ' class="empty"';
     return qq(<a href="$script?$target"$class>$target</a>);
 }
@@ -325,14 +325,14 @@ sub html {
 package Kwiki::Formatter::HyperLink;
 use base 'Spoon::Formatter::Unit';
 const formatter_id => 'hyper';
-our $pattern = qr/(?:https?|ftp|irc)\:(?:\/\/)?\S+?(?=[),.:;]?\s|$)/;
+our $pattern = qr{\w+:(?://|\?)\S+?(?=[),.:;]?\s|$)};
 const pattern_start => qr/$pattern|!$pattern/;
 
 sub html {
     my $text = $self->escape_html($self->matched);
     return $text if $text =~ s/^!//;
     return qq(<img src="$text" />)
-      if $text =~ /^https?:\/\/.*(?i:jpe?g|gif|png)$/;
+      if $text =~ /(?:jpe?g|gif|png)$/i;
     return qq(<a href="$text">$text</a>);
 }
 
@@ -341,14 +341,14 @@ package Kwiki::Formatter::TitledHyperLink;
 use base 'Spoon::Formatter::Unit';
 const formatter_id => 'titlehyper';
 const pattern_start => 
-  qr/\[(?:\s*([^\]]+)\s+)?((?:https?|ftp)\:(?:\/\/)?[^\]\s]+)(?:\s+([^\]]+)\s*)?\]/;
+  qr{\[(?:\s*([^\]]+)\s+)?(\w+:(?://|\?)[^\]\s]+)(?:\s+([^\]]+)\s*)?\]};
 
 sub html {
     my $text = $self->escape_html($self->matched);
     my ($title1, $target, $title2) = ($text =~ $self->pattern_start);
     $title1 = '' unless defined $title1;
     $title2 = '' unless defined $title2;
-    $target =~ s/^https?\:(?!\/\/)//;
+    $target =~ s{^\w+:(?!//)}{};
     my $title = $title1 . ' ' . $title2;
     $title =~ s/^\s*(.*?)\s*$/$1/;
     $title = $target 
@@ -365,10 +365,10 @@ our $pattern = qr/[$UPPER](?=[$WORD]*[$UPPER])(?=[$WORD]*[$LOWER])[$WORD]+/;
 const pattern_start => qr/$pattern|!$pattern/;
 
 sub html {
-    my $page_id = $self->escape_html($self->matched);
-    return $page_id
-      if $page_id =~ s/^!//;
-    $self->hub->pages->new_page($page_id)->kwiki_link;
+    my $page_name = $self->escape_html($self->matched);
+    return $page_name
+      if $page_name =~ s/^!//;
+    $self->hub->pages->new_from_name($page_name)->kwiki_link;
 }
 
 ################################################################################
@@ -381,8 +381,8 @@ const pattern_start =>
 
 sub html {
     my $text = $self->escape_html($self->matched);
-    my ($label, $page_id) = ($text =~ $self->pattern_start);
-    $self->hub->pages->new_page($page_id)->kwiki_link($label);
+    my ($label, $page_name) = ($text =~ $self->pattern_start);
+    $self->hub->pages->new_from_name($page_name)->kwiki_link($label);
 }
 
 ################################################################################

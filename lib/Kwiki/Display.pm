@@ -4,6 +4,7 @@ use warnings;
 use Kwiki::Plugin '-Base';
 use mixin 'Kwiki::Installer';
 
+const config_file => 'display.yaml';
 const class_id => 'display';
 const class_title => 'Page Display';
 
@@ -25,14 +26,14 @@ sub display_changed_by {
 
 sub display {
     my $page = $self->pages->current;
-    my $page_id = $page->id;
-    return $self->redirect("action=edit&page_id=$page_id")
+    my $page_title = $page->title;
+    my $page_uri = $page->uri;
+    return $self->redirect("action=edit&page_id=$page_uri")
       unless $page->exists;
-    $self->page($page);
     my $script = $self->config->script_name;
     my $screen_title = $self->hub->have_plugin('search')
-    ? "<a href=\"$script?action=search&search_term=$page_id\">$page_id</a>"
-    : $page_id;
+    ? "<a href=\"$script?action=search&search_term=$page_uri\">$page_title</a>"
+    : $page_title;
     $self->render_screen(
         screen_title => $screen_title,
         page_html => $page->to_html,
@@ -65,6 +66,9 @@ under the same terms as Perl itself.
 See http://www.perl.com/perl/misc/Artistic.html
 
 =cut
+__config/display.yaml__
+cache_pages:
+- HomePage
 __template/tt2/home_button.html__
 <!-- BEGIN home_button.html -->
 <a href="[% script_name %]?[% main_page %]" accesskey="h" title="Home Page">

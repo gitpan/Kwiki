@@ -5,7 +5,6 @@ use Kwiki::Plugin '-Base';
 use mixin 'Kwiki::Installer';
 
 const class_id => 'toolbar';
-const class_title => 'Kwiki Toolbar';
 const toolbar_template => 'toolbar_pane.html';
 const css_file => 'toolbar.css';
 const config_file => 'toolbar.yaml';
@@ -35,7 +34,8 @@ sub html {
     push @class_ids, sort {
         $class_ids{$a} <=> $class_ids{$b}
     } keys %class_ids;
-    my $toolbar_content = join "|\n", grep {
+    my @all = $self->pages->current->all;
+    my $toolbar_content = join " | ", grep {
         defined $_ and do {
             my $button = $_;
             $button =~ s/<!--.*?-->//gs;
@@ -44,12 +44,20 @@ sub html {
     } map {
         $self->show($_)
         ? defined($_->{template})
-          ? $self->template->process($_->{template})
+          ? $self->template->process(
+              $_->{template},
+              @all,
+              $_->{params_class}
+                ? $self->hub->load_class($_->{params_class})->toolbar_params
+                : ()
+          )
           : undef
         : undef
     } map {
         defined $toolmap{$_} ? @{$toolmap{$_}} : ()
     } @class_ids;
+    $toolbar_content =~ s/\n+</</g;
+    $toolbar_content =~ s/>\n+/>/g;
     $self->template->process($self->toolbar_template,
         toolbar_content => $toolbar_content,
     );

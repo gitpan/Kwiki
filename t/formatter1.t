@@ -23,7 +23,7 @@ __END__
 visit SomePage or [forcedlink] (not [=code]) if you can, but avoid the negated !NotALink wherever possible, also, [a titled link TitledLink].
 <<<
 <p>
-visit <a href="index.cgi?SomePage" class="empty">SomePage</a> or <a href="index.cgi?forcedlink" class="empty">forcedlink</a> &#40;not <tt>code</tt>&#41; if you can, but avoid the negated NotALink wherever possible, also, <a href="index.cgi?TitledLink" class="empty">a titled link</a>.
+visit <a href="?SomePage" class="empty">SomePage</a> or <a href="?forcedlink" class="empty">forcedlink</a> &#40;not <tt>code</tt>&#41; if you can, but avoid the negated NotALink wherever possible, also, <a href="?TitledLink" class="empty">a titled link</a>.
 </p>
 %%%
 Take a look at http://www.domain.com/dir/the%20page.html?this=isthe&query=string ! But don't check !http://www.negated.com/
@@ -223,7 +223,7 @@ Another Paragraph.
 <ol>
 <li>Foo</li>
 <li>Bar <em>empha</em></li>
-<li><a href="index.cgi?LinkInALink" class="empty">LinkInALink</a></li>
+<li><a href="?LinkInALink" class="empty">LinkInALink</a></li>
 </ol></ul>
 <pre class="formatter_pre">bar
 </pre>
@@ -233,7 +233,7 @@ Another Paragraph.
 
 <h3>Conclusion</h3>
 <p>
-We can <em>clearly</em> see that the <em><a href="index.cgi?WaflWay" class="empty">WaflWay</a></em>
+We can <em>clearly</em> see that the <em><a href="?WaflWay" class="empty">WaflWay</a></em>
 is <em>the <strong>best</strong> way</em> to be.
 
 </p>

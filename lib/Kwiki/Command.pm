@@ -41,6 +41,7 @@ sub new_kwiki {
     $self->install('pages');
     $self->install('theme');
     $self->install('toolbar');
+    $self->install('status');
     $self->install('widgets');
     $self->install('htaccess');
     $self->set_permissions;
@@ -55,6 +56,7 @@ sub add_new_default_config {
             files_class => 'Kwiki::Files',
             theme_class => 'Kwiki::Theme::Basic',
             toolbar_class => 'Kwiki::Toolbar',
+            status_class => 'Kwiki::Status',
             widgets_class => 'Kwiki::Widgets',
             htaccess_class => 'Kwiki::Htaccess',
         }
@@ -147,7 +149,7 @@ sub cpan_setup {
     no warnings;
     require CPAN;
     require CPAN::Config;
-    my $lib = io->dir('lib')->rel2abs;
+    my $lib = io->dir('lib')->absolute;
     $ENV{PERL_MM_OPT} = "INSTALLSITELIB=$lib PREFIX=$lib"
       if $lib->exists;
     CPAN::Config->load;

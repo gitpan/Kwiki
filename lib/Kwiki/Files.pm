@@ -95,14 +95,19 @@ __template/tt2/kwiki_begin.html__
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   <title>
-[% IF hub.action == 'display' || hub.action == 'edit' || hub.action ==
-'revisions' %]
+[% IF hub.action == 'display' || 
+      hub.action == 'edit' || 
+      hub.action == 'revisions' 
+%]
   [% hub.cgi.page_id %] -
 [% END %]
 [% IF hub.action != 'display' %]
   [% self.class_title %] - 
 [% END %]
   [% site_title %]</title>
+[% FOR link = hub.links.all -%]
+  <link rel="[% link.rel %]" type="[% link.type %]" href="[% link.href %]" />
+[% END %]
 [% FOR css_file = hub.css.files -%]
   <link rel="stylesheet" type="text/css" href="[% css_file %]" />
 [% END -%]
@@ -110,7 +115,7 @@ __template/tt2/kwiki_begin.html__
   <script type="text/javascript" src="[% javascript_file %]"></script>
 [% END -%]
   <link rel="shortcut icon" href="" />
-  <link rel="start" href="index.cgi" title="Home" />
+  <link rel="start" href="[% script_name %]" title="Home" />
 </head>
 <body>
 <!-- END kwiki_begin.html -->

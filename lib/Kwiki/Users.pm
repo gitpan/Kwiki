@@ -29,7 +29,7 @@ sub current {
 }
 
 sub new_user {
-    $self->user_class->new($self->hub, shift);
+    $self->user_class->new(hub => $self->hub, id => shift);
 }
 
 package Kwiki::User;
@@ -38,11 +38,8 @@ use base 'Kwiki::Base';
 field 'id';
 field 'name' => '';
         
-sub new() {
-    my $class = shift;
-    my $self = bless {}, $class;
-    $self->hub(shift);
-    $self->id(shift);
+sub new {
+    $self = super;
     $self->set_user_name;
     return $self;
 }

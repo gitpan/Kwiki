@@ -5,12 +5,6 @@ use Spoon::Base '-Base';
 
 field 'id';
 
-sub new {
-    $self = super(shift);
-    $self->id(shift) if @_;;
-    return $self;
-}
-
 1;
 
 __END__

@@ -25,6 +25,19 @@ sub all_ids_newest_first {
     map {chomp; $_} `ls -1t $path`;
 }   
 
+sub recent_by_count {
+    my ($count) = @_;
+    my @page_ids = $self->all_ids_newest_first;
+    splice(@page_ids, $count)
+      if @page_ids > $count;
+    my @pages;
+    for my $page_id (@page_ids) {
+        my $page = $self->new_page($page_id);
+        push @pages, $page;
+    }   
+    return @pages;
+}
+
 sub all_since {
     my ($minutes) = @_;
     my @pages_since;
@@ -43,21 +56,43 @@ sub current {
 }
 
 sub current_id {
-    return $self->cgi->page_id ||
-           $self->uri_escape($self->config->main_page)
-           or die;
+    my $page_name = $self->cgi->page_id || $self->config->main_page;
+    $self->name_to_id($page_name);
+}
+
+sub name_to_id {
+    my $id = $self->uri_escape(shift);
+}
+
+sub id_to_uri {
+    (shift);
+}
+
+sub id_to_name {
+    my $name = $self->uri_unescape(shift);
+}
+
+sub id_to_title {
+    my $title = $self->id_to_name(shift);
 }
 
 sub new_page {
     my $page_id = shift;
-    my $page = $self->page_class->new($self->hub, $page_id);
+    my $page = $self->page_class->new(hub => $self->hub, id => $page_id);
     $page->metadata($self->new_metadata($page_id));
+    return $page;
+}
+
+sub new_from_name {
+    my $page_name = shift;
+    my $page = $self->new_page($self->name_to_id($page_name));
+    $page->name($page_name);
     return $page;
 }
 
 sub new_metadata {
     my $page_id = shift or die;
-    $self->meta_class->new($self->hub, $page_id);
+    $self->meta_class->new(hub => $self->hub, id => $page_id);
 }
 
 sub kwiki_link {
@@ -65,10 +100,29 @@ sub kwiki_link {
 }
 
 package Kwiki::Page;
-use Kwiki::ContentObject '-base';
+use Kwiki::ContentObject qw(-base !io);
 use Kwiki ':char_classes';
+our @EXPORT = '!io';
 
 field class_id => 'page';
+
+sub name {
+    return $self->{name} = shift if @_;
+    return $self->{name} if defined $self->{name};
+    return $self->{name} = $self->hub->pages->id_to_name($self->id);
+}
+
+sub uri {
+    return $self->{uri} = shift if @_;
+    return $self->{uri} if defined $self->{uri};
+    return $self->{uri} = $self->hub->pages->id_to_uri($self->id);
+}
+
+sub title {
+    return $self->{title} = shift if @_;
+    return $self->{title} if defined $self->{title};
+    return $self->{title} = $self->hub->pages->id_to_title($self->id);
+}
 
 sub database_directory {
     $self->hub->config->database_directory;
@@ -77,6 +131,7 @@ sub database_directory {
 sub content {
     return $self->{content} = shift if @_;
     return $self->{content} if defined $self->{content};
+    $self->call_hooks('content');
     $self->load_content;
     return $self->{content};
 }
@@ -84,8 +139,9 @@ sub content {
 sub metadata {
     return $self->{metadata} = shift if @_;
     $self->{metadata} ||= 
-      $self->meta_class->new($self->hub, $self->id);
+      $self->meta_class->new(hub => $self->hub, id => $self->id);
     return $self->{metadata} if $self->{metadata}->loaded;
+    $self->call_hooks('metadata');
     $self->load_metadata;
     return $self->{metadata};
 }
@@ -97,23 +153,18 @@ sub update {
 
 sub store {
     super or return;
-    my $hooks = $self->hub->registry->lookup->{page_store_hook}
-      or return;
-    for my $method (keys %$hooks) {
-        my $class_id = $hooks->{$method}[0];
-        $self->hub->load_class($class_id)->$method($self);
-    }
+    $self->call_hooks('store');
 }
 
 sub kwiki_link {
     my ($label) = @_;
-    my $page_id = $self->id;
-    $label = $page_id
+    my $page_uri = $self->uri;
+    $label = $self->name
       unless defined $label;
-    my $script = $self->hub->config->script_name || 'index.cgi';
+    my $script = $self->hub->config->script_name;
     my $class = $self->active
       ? '' : ' class="empty"';
-    qq(<a href="$script?$page_id"$class>$label</a>);
+    qq(<a href="$script?$page_uri"$class>$label</a>);
 }
 
 sub edit_by_link {
@@ -139,8 +190,12 @@ sub format_time {
     return $formatted;
 }
 
+sub io {
+    Kwiki::io($self->database_directory . '/' . $self->id)->file;
+}
+
 sub modified_time {
-    io->catfile($self->database_directory, $self->id)->mtime || 0;
+    $self->io->mtime || 0;
 }
 
 sub age {
@@ -162,6 +217,8 @@ sub age_in_seconds {
 sub all {
     return (
         page_id => $self->id,
+        page_uri => $self->uri,
+        page_name => $self->name,
     );
 }
 
@@ -171,8 +228,16 @@ sub to_html {
     $self->hub->formatter->text_to_html($content);
 }
 
+sub history {
+    $self->hub->load_class('archive')->history($self);
+}
+
 sub revision_number {
     $self->hub->load_class('archive')->revision_number($self);
+}
+
+sub revision_numbers {
+    $self->hub->load_class('archive')->revision_numbers($self, @_);
 }
 
 package Kwiki::PageMeta;
@@ -214,7 +279,7 @@ sub update {
 
 sub store {
     my $file_path = $self->file_path;
-    my $hash = $self->from_hash;
+    my $hash = $self->to_hash;
     $self->print_yaml_file($file_path, $hash);
 }
 
