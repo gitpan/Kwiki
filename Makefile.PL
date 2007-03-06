@@ -1,7 +1,7 @@
 use inc::Module::Install;
 
 name('Kwiki');
-author('Brian Ingerson <ingy@cpan.org>');
+author('Ingy döt Net <ingy@cpan.org>');
 abstract('Kwiki Wiki Framework');
 license('perl');
 version_from('lib/Kwiki.pm');

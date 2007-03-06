@@ -1,4 +1,10 @@
 ---
+version: 0.39
+date:    Tue Mar  6 12:13:40 PST 2007
+changes:
+- Adding documentation for Kwiki 2
+- Explain that people should use Kwiki from SVN rather than CPAN for now
+---
 version: 0.38
 date:    Mon Apr  4 07:44:29 PDT 2005
 changes:

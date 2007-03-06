@@ -1,6 +1,74 @@
 NAME
     Kwiki - The Kwiki Wiki Building Framework
 
+KWIKI 2.0
+    STOP. Don't install this CPAN module! Read this section to find out
+    why...
+
+    Kwiki-0.38 and the large collection of Kwiki CPAN modules has been
+    relatively stable on CPAN for the last couple years. Being stable also
+    means being undeveloped.
+
+    In December 2006, the Kwiki community started actively developing Kwiki
+    again. We call the revitalized project Kwiki 2.0. This is not a version
+    number (at least not yet), but a code name for the effort.
+
+    Some goals of Kwiki 2.0 are:
+
+      * Make Kwiki easier to install and maintain
+      * Make Kwiki fast
+      * Make Kwiki plugins easier to develop
+      * Make Kwiki more fun
+
+    We've made a lot of headway on these goals and other goals too.
+
+    Kwiki is *really* simple to install now. _All_ the Perl dependencies
+    come with Kwiki, and are /preinstalled/. This means you just need Perl
+    5.8.3 and a web server. Well actually we give you a web server too!
+
+    NOTE: /Preinstalled/ means that the modules are all linked into a lib
+    tree that is separate from your installed Perl modules. This is good for
+    several reasons:
+
+        1) Installing modules takes a lot of time.
+        2) Kwiki is guaranteed to have module versions that work.
+        3) Kwiki doesn't change anything about your system's Perl lib.
+        4) You can delete all the modules by just deleting the Kwiki checkout.
+        5) Upgrading Kwiki is simple as 'svn update'!
+        6) You can install Kwiki without root permissions.
+
+    Also Kwiki is now smoking fast if you use Kwiki::FastCGI. There are also
+    some new caching modules that make Kwiki even faster still.
+
+    The important part is this: all the new stuff is not yet on CPAN. If you
+    want to install Kwiki, get it from our subversion repository (highly
+    recommended) or tarball downloads.
+
+    You will be amazed at how simple and fast it is to install the new Kwiki
+    which comes with nearly 500 Perl modules. The longest part is simply
+    checking out the repository. See
+    <http://www.kwiki.org/?InstallingKwiki2> for details.
+
+    Eventually all this work will make it back to CPAN, but likely not for a
+    while.
+
+    Here's a list of references for more information:
+
+        * http://www.kwiki.org                 - Main Kwiki Site
+        * http://www.kwiki.org/?KwikiNews      - Kwiki News
+        * http://svn.kwiki.org/kwiki/trunk/    - Kwiki SVN Repository
+        * http://trac.kwiki.org/trac/timeline  - Kwiki Project Management
+        * #kwiki on irc.freenode.net           - Kwiki IRC Channel
+        * http://www.kwiki.org/downloads/      - Kwiki downloads
+        * http://doolittle.kwiki.org/          - Kwiki Documentation Wiki
+
+    Finally, there are generally a good amount of helpful people on IRC.
+    Please drop by sometime!
+
+    Cheers, Ingy
+
+    Here's the old Kwiki.pm doc. It might be a little out of date...
+
 SYNOPSIS
         > kwiki -new cgi-bin/my-kwiki
 
@@ -80,10 +148,11 @@ SEE ALSO
     Kwiki::Command
 
 AUTHOR
-    Brian Ingerson <INGY@cpan.org>
+    Ingy döt Net <ingy@cpan.org>
 
 COPYRIGHT
-    Copyright (c) 2004. Brian Ingerson. All rights reserved.
+    Copyright (c) 2004. Brian Ingerson. All rights reserved. Copyright (c)
+    2007. Ingy döt Net. All rights reserved.
 
     This program is free software; you can redistribute it and/or modify it
     under the same terms as Perl itself.
